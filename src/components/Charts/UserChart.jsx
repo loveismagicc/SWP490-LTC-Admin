@@ -30,7 +30,7 @@ const UserChart = () => {
   const [filter, setFilter] = useState("month");
 
   return (
-    <div style={{ width: "100%", backgroundColor: "#fff", borderRadius: "10px", padding: "20px", marginTop: "30px" }}>
+    <div style={{ width: "100%", backgroundColor: "#fff", borderRadius: "10px", padding: "20px"}}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h3>Biểu đồ Người dùng mới</h3>
         <select value={filter} onChange={(e) => setFilter(e.target.value)} style={{ padding: "5px 10px", borderRadius: "5px" }}>

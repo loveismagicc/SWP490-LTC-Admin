@@ -1,10 +1,9 @@
 import React from "react";
-import "./App.scss";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Sidebar from "./components/Sidebar/Sidebar";
-import Breadcrumb from "./components/Breadcrumb/Breadcrumb";
-import Header from "./components/Header/Header";
 
+import Login from "./pages/Login/Login";
+import MainLayout from "./layouts/MainLayout";
+import PrivateRoute from "./routes/PrivateRoute";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Users from "./pages/Users/Users";
@@ -17,25 +16,31 @@ import Settings from "./pages/Settings/Settings";
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="app">
-        <Sidebar />
-        <div className="main-content">
-          <Header />
-          <Breadcrumb /> {/* Hiển thị trên tất cả trang */}
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/hotels" element={<Hotels />} />
-            <Route path="/tours" element={<Tours />} />
-            <Route path="/bookings" element={<Bookings />} />
-            <Route path="/revenue" element={<Revenue />} />
-            <Route path="/partners" element={<Partners />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </div>
-      </div>
-    </BrowserRouter>
+      <BrowserRouter>
+        <Routes>
+          {/* Route login KHÔNG dùng layout */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Routes cần login -> có layout */}
+          <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <MainLayout />
+                </PrivateRoute>
+              }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="users" element={<Users />} />
+            <Route path="hotels" element={<Hotels />} />
+            <Route path="tours" element={<Tours />} />
+            <Route path="bookings" element={<Bookings />} />
+            <Route path="revenue" element={<Revenue />} />
+            <Route path="partners" element={<Partners />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
   );
 }
 
