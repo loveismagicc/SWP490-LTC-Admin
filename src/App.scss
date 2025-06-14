@@ -1,0 +1,22 @@
+.app {
+  display: flex;
+  height: 100vh; // chiếm toàn bộ chiều cao trình duyệt
+  width: 100vw;  // chiếm toàn bộ chiều ngang
+  overflow: hidden;
+
+  .sidebar {
+    width: 220px;
+    background-color: #111827;
+    color: white;
+    height: 100vh;
+    flex-shrink: 0; // không co nhỏ lại
+  }
+
+  .main-content {
+    flex: 1;
+    min-width: 0; // rất quan trọng để flex hoạt động đúng!
+    background-color: #ecf0f1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+}

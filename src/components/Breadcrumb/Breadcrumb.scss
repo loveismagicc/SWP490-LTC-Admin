@@ -1,0 +1,13 @@
+.breadcrumb {
+  margin-bottom: 20px;
+  font-size: 14px;
+
+  a {
+    color: #3498db;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,0 +1,62 @@
+.header-admin {
+  height: 60px;
+  background-color: #ffffff;
+  padding: 0 20px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  .left {
+    h3 {
+      margin: 0;
+      font-size: 20px;
+      color: #2c3e50;
+    }
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    .icon {
+      font-size: 22px;
+      margin-left: 20px;
+      cursor: pointer;
+      color: #2c3e50;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+
+      .dropdown {
+        position: absolute;
+        top: 36px;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        border-radius: 6px;
+        overflow: hidden;
+        z-index: 99;
+
+        button {
+          padding: 10px 20px;
+          width: 100%;
+          background: none;
+          border: none;
+          cursor: pointer;
+          text-align: left;
+
+          &:hover {
+            background-color: #f2f2f2;
+          }
+        }
+      }
+    }
+  }
+}
