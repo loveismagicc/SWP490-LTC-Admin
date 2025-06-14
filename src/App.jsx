@@ -15,6 +15,7 @@ import Partners from "./pages/Partners/Partners";
 import Settings from "./pages/Settings/Settings";
 import {ToastContainer} from "react-toastify";
 import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner.jsx";
+import EditUser from "./pages/Users/EditUser.jsx";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                   >
                       <Route index element={<Dashboard />} />
                       <Route path="users" element={<Users />} />
+                      <Route path="users/:id/edit" element={<EditUser />} />
                       <Route path="hotels" element={<Hotels />} />
                       <Route path="tours" element={<Tours />} />
                       <Route path="bookings" element={<Bookings />} />

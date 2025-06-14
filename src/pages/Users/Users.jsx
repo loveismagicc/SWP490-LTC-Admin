@@ -1,10 +1,69 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import DataTable from "../../components/DataTable/DataTable";
+
 const Users = () => {
-  return (
-    <div>
-      <h1>Quản lý User</h1>
-      <p>Danh sách người dùng trong hệ thống.</p>
-    </div>
-  );
+    const navigate = useNavigate();
+
+    const roles = ["admin", "user", "moderator"];
+    const users = [];
+
+    for (let i = 1; i <= 50; i++) {
+        users.push({
+            id: i,
+            username: `user${i}`,
+            email: `user${i}@example.com`,
+            role: roles[i % roles.length],
+        });
+    }
+
+    const columns = [
+        { key: "id", label: "ID" },
+        { key: "username", label: "Tên đăng nhập" },
+        { key: "email", label: "Email" },
+        { key: "role", label: "Vai trò" },
+    ];
+
+    const fetchData = async (page, limit, search) => {
+        let filtered = users;
+
+        if (search) {
+            filtered = filtered.filter(
+                (u) =>
+                    u.username.toLowerCase().includes(search.toLowerCase()) ||
+                    u.email.toLowerCase().includes(search.toLowerCase()) ||
+                    u.role.toLowerCase().includes(search.toLowerCase())
+            );
+        }
+
+        const start = (page - 1) * limit;
+        const end = start + limit;
+
+        return {
+            data: filtered.slice(start, end),
+            total: filtered.length,
+        };
+    };
+
+    const handleEdit = (id) => navigate(`/users/${id}/edit`);
+    const handleDelete = (id) => {
+        alert(`Xoá user có ID ${id}`);
+    };
+    const handleRowClick = (row) => navigate(`/users/${row.id}`);
+
+
+    return (
+        <div>
+            <h2>Danh sách người dùng</h2>
+            <DataTable
+                columns={columns}
+                fetchData={fetchData}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onRowClick={handleRowClick}
+            />
+        </div>
+    );
 };
 
 export default Users;
