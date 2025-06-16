@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../components/DataTable/DataTable";
+import "./Users.scss";
 
 const Users = () => {
     const navigate = useNavigate();
@@ -45,7 +46,7 @@ const Users = () => {
         };
     };
 
-    const handleEdit = (id) => navigate(`/users/${id}/edit`);
+    const handleEdit = (id) => navigate(`/users/${id}`);
     const handleDelete = (id) => {
         alert(`Xoá user có ID ${id}`);
     };
@@ -54,7 +55,12 @@ const Users = () => {
 
     return (
         <div>
-            <h2>Danh sách người dùng</h2>
+            <div className="table-header">
+                <h2>Danh sách người dùng</h2>
+                <button className="btn-add" onClick={() => navigate("/users/new")}>
+                    ➕ Thêm mới
+                </button>
+            </div>
             <DataTable
                 columns={columns}
                 fetchData={fetchData}

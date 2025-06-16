@@ -1,0 +1,50 @@
+.chart-card {
+  background: linear-gradient(135deg, #f9fafc, #eef1f5);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  width: 100%;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #333;
+      font-weight: 600;
+    }
+
+    select {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      //background-color: #fff;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+
+      &:hover {
+        border-color: #007bff;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+      }
+    }
+  }
+
+  .recharts-wrapper {
+    max-width: 100%;
+  }
+}
