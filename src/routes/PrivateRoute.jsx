@@ -5,12 +5,7 @@ import { authService } from "../services/authService";
 const PrivateRoute = ({ children }) => {
     const token = authService.getAccessToken();
 
-    // if (!token || authService.isTokenExpired(token)) {
-    //     return <Navigate to="/login" replace />;
-    // }
-
-    //fake tam
-    if (!token) {
+    if (!token || authService.isTokenExpired(token)) {
         return <Navigate to="/login" replace />;
     }
 

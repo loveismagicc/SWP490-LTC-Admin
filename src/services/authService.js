@@ -1,19 +1,24 @@
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000"; // Cập nhật nếu backend khác cổng
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
 
 export const authService = {
-    login: async (username, password) => {
-        const res = await fetch("http://localhost:8080/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
-        });
+    login: async (email, password) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/login`, {
+                email,
+                password,
+            });
 
-        if (!res.ok) throw new Error("Đăng nhập thất bại");
-
-        const data = await res.json();
-        localStorage.setItem(ACCESS_TOKEN_KEY, data.accessToken);
-        localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
+            const { accessToken, refreshToken } = res.data;
+            localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+            localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+            return res.data; // return để FE dùng nếu cần
+        } catch (err) {
+            throw new Error(err.response?.data?.message || "Đăng nhập thất bại");
+        }
     },
 
     logout: () => {
@@ -38,17 +43,16 @@ export const authService = {
 
     refreshAccessToken: async () => {
         const refreshToken = authService.getRefreshToken();
-        const res = await fetch("http://localhost:8080/api/refresh-token", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refreshToken }),
-        });
-
-        if (!res.ok) throw new Error("Làm mới token thất bại");
-
-        const data = await res.json();
-        localStorage.setItem(ACCESS_TOKEN_KEY, data.accessToken);
-        return data.accessToken;
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/refresh-token`, {
+                refreshToken,
+            });
+            const { accessToken } = res.data;
+            localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+            return accessToken;
+        } catch (err) {
+            throw new Error(err.response?.data?.message || "Làm mới token thất bại");
+        }
     },
 
     getValidAccessToken: async () => {

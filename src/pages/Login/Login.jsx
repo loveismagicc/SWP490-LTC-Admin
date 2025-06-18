@@ -11,10 +11,12 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            // await authService.login(username, password);
-            localStorage.setItem('accessToken', 'fake');
+            const data = await authService.login(username, password);
+            console.log(data);
+            localStorage.setItem('accessToken', data.data.accessToken);
             navigate("/"); // ✅ Chuyển vào layout chính
         } catch (err) {
+            alert(err);
             alert("Đăng nhập thất bại");
         }
     };
