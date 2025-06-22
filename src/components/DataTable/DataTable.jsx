@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./DataTable.scss";
 
-const DataTable = ({ columns, fetchData, onEdit, onDelete, onRowClick }) => {
+const DataTable = ({ columns, fetchData, actions = [], onRowClick }) => {
     const [data, setData] = useState([]);
     const [search, setSearch] = useState("");
     const [sortKey, setSortKey] = useState(null);
@@ -9,12 +9,20 @@ const DataTable = ({ columns, fetchData, onEdit, onDelete, onRowClick }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit, setLimit] = useState(10);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
-            const res = await fetchData(currentPage, limit, search);
-            setData(res.data);
-            setTotalPages(Math.ceil(res.total / limit));
+            setLoading(true);
+            try {
+                const res = await fetchData(currentPage, limit, search);
+                setData(res.data);
+                setTotalPages(Math.ceil(res.total / limit));
+            } catch (error) {
+                console.error("Lỗi khi load data:", error);
+            } finally {
+                setLoading(false);
+            }
         };
         loadData();
     }, [fetchData, currentPage, limit, search]);
@@ -28,14 +36,15 @@ const DataTable = ({ columns, fetchData, onEdit, onDelete, onRowClick }) => {
         }
     };
 
-    const sortedData = [...data].sort((a, b) => {
-        if (!sortKey) return 0;
-        const valA = a[sortKey];
-        const valB = b[sortKey];
-        if (valA < valB) return sortOrder === "asc" ? -1 : 1;
-        if (valA > valB) return sortOrder === "asc" ? 1 : -1;
-        return 0;
-    });
+    const sortedData = sortKey
+        ? [...data].sort((a, b) => {
+            const valA = a[sortKey];
+            const valB = b[sortKey];
+            if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+            if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+            return 0;
+        })
+        : data;
 
     return (
         <div className="data-table">
@@ -56,7 +65,7 @@ const DataTable = ({ columns, fetchData, onEdit, onDelete, onRowClick }) => {
                     onChange={(e) => setLimit(Number(e.target.value))}
                 >
                     {[10, 20, 50].map((l) => (
-                        <option key={l} value={l}>{l} bản ghi/trang</option>
+                        <option key={`limit-${l}`} value={l}>{l} bản ghi/trang</option>
                     ))}
                 </select>
             </div>
@@ -66,35 +75,52 @@ const DataTable = ({ columns, fetchData, onEdit, onDelete, onRowClick }) => {
                     <thead>
                     <tr>
                         {columns.map((col) => (
-                            <th key={col.key} onClick={() => handleSort(col.key)}>
+                            <th key={`header-${col.key}`} onClick={() => handleSort(col.key)}>
                                 {col.label} {sortKey === col.key ? (sortOrder === "asc" ? "▲" : "▼") : ""}
                             </th>
                         ))}
-                        <th>Hành động</th>
+                        {actions.length > 0 && <th>Hành động</th>}
                     </tr>
                     </thead>
                     <tbody>
-                    {sortedData.map((row) => (
-                        <tr key={row.id} onClick={() => onRowClick?.(row)}>
-                            {columns.map((col) => (
-                                <td key={col.key}>{row[col.key]}</td>
-                            ))}
-                            <td>
-                                <button
-                                    className="btn btn-edit"
-                                    onClick={(e) => { e.stopPropagation(); onEdit?.(row.id); }}
-                                >
-                                    ✏️ Sửa
-                                </button>
-                                <button
-                                    className="btn btn-delete"
-                                    onClick={(e) => { e.stopPropagation(); onDelete?.(row.id); }}
-                                >
-                                    🗑️ Xoá
-                                </button>
+                    {loading ? (
+                        <tr>
+                            <td colSpan={columns.length + 1} className="data-table__loading">
+                                Đang tải dữ liệu...
                             </td>
                         </tr>
-                    ))}
+                    ) : sortedData.length === 0 ? (
+                        <tr>
+                            <td colSpan={columns.length + 1} className="data-table__empty">
+                                Không có dữ liệu
+                            </td>
+                        </tr>
+                    ) : (
+                        sortedData.map((row, idx) => (
+                            <tr key={`row-${row.id || idx}`} onClick={() => onRowClick?.(row)}>
+                                {columns.map((col) => (
+                                    <td key={`cell-${row.id || idx}-${col.key}`}>{row[col.key]}</td>
+                                ))}
+                                {actions.length > 0 && (
+                                    <td>
+                                        {actions.map((act, actionIdx) => (
+                                            <button
+                                                key={`action-${row.id || idx}-${actionIdx}`}
+                                                className={`btn ${act.className || ""}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    act.action(row);
+                                                }}
+                                                title={act.label}
+                                            >
+                                                {act.icon || act.label}
+                                            </button>
+                                        ))}
+                                    </td>
+                                )}
+                            </tr>
+                        ))
+                    )}
                     </tbody>
                 </table>
             </div>

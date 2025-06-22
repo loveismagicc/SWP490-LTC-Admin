@@ -1,24 +1,23 @@
-import axios from "axios";
+import {apiService} from "./apiService";
+import {API_ENDPOINTS} from "../constants/apiEndpoints";
 
-const API_BASE_URL = "http://localhost:5000"; // Cập nhật nếu backend khác cổng
+const API_BASE_URL = "http://localhost:5000";
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
 
 export const authService = {
     login: async (email, password) => {
-        try {
-            const res = await axios.post(`${API_BASE_URL}/api/admin/login`, {
-                email,
-                password,
-            });
+        const res = await apiService.request({
+            url: API_ENDPOINTS.AUTH.LOGIN,
+            method: "POST",
+            data: {email, password},
+            requiresAuth: false,
+        });
 
-            const { accessToken, refreshToken } = res.data;
-            localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-            localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-            return res.data; // return để FE dùng nếu cần
-        } catch (err) {
-            throw new Error(err.response?.data?.message || "Đăng nhập thất bại");
-        }
+        const {accessToken, refreshToken} = res;
+        localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+        return res;
     },
 
     logout: () => {
@@ -43,16 +42,15 @@ export const authService = {
 
     refreshAccessToken: async () => {
         const refreshToken = authService.getRefreshToken();
-        try {
-            const res = await axios.post(`${API_BASE_URL}/api/refresh-token`, {
-                refreshToken,
-            });
-            const { accessToken } = res.data;
-            localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-            return accessToken;
-        } catch (err) {
-            throw new Error(err.response?.data?.message || "Làm mới token thất bại");
-        }
+        const res = await apiService.request({
+            url: API_ENDPOINTS.AUTH.REFRESH_TOKEN,
+            method: "POST",
+            data: {refreshToken},
+            requiresAuth: false,
+        });
+        const {accessToken} = res.data;
+        localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+        return accessToken;
     },
 
     getValidAccessToken: async () => {

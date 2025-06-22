@@ -1,22 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../components/DataTable/DataTable";
+import { userService } from "../../services/userService";
 import "./Users.scss";
+import {toast} from "react-toastify";
 
 const Users = () => {
     const navigate = useNavigate();
-
-    const roles = ["admin", "user", "moderator"];
-    const users = [];
-
-    for (let i = 1; i <= 50; i++) {
-        users.push({
-            id: i,
-            username: `user${i}`,
-            email: `user${i}@example.com`,
-            role: roles[i % roles.length],
-        });
-    }
 
     const columns = [
         { key: "id", label: "ID" },
@@ -26,32 +16,30 @@ const Users = () => {
     ];
 
     const fetchData = async (page, limit, search) => {
-        let filtered = users;
-
-        if (search) {
-            filtered = filtered.filter(
-                (u) =>
-                    u.username.toLowerCase().includes(search.toLowerCase()) ||
-                    u.email.toLowerCase().includes(search.toLowerCase()) ||
-                    u.role.toLowerCase().includes(search.toLowerCase())
-            );
-        }
-
-        const start = (page - 1) * limit;
-        const end = start + limit;
-
+        const res = await userService.getUsers(page, limit, search);
         return {
-            data: filtered.slice(start, end),
-            total: filtered.length,
+            data: res.data,
+            total: res.total,
         };
     };
 
-    const handleEdit = (id) => navigate(`/users/${id}`);
-    const handleDelete = (id) => {
-        alert(`Xoá user có ID ${id}`);
+    const handleEdit = (row) => {
+        navigate(`/users/${row._id}`);
     };
-    const handleRowClick = (row) => navigate(`/users/${row.id}`);
 
+    const handleDelete = (row) => {
+        if (window.confirm(`Bạn có chắc chắn muốn xoá user ${row.email}?`)) {
+            userService.deleteUser(row._id).then(() => {
+                toast.success("Xoá thành công!");
+                navigate("/users");
+            });
+        }
+    };
+
+    const handleRowClick = (row) => {
+        console.log(row);
+        navigate(`/users/${row._id}`);
+    };
 
     return (
         <div>
@@ -61,12 +49,25 @@ const Users = () => {
                     ➕ Thêm mới
                 </button>
             </div>
+
             <DataTable
                 columns={columns}
                 fetchData={fetchData}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
                 onRowClick={handleRowClick}
+                actions={[
+                    {
+                        label: "Sửa",
+                        icon: "✏️",
+                        action: handleEdit,
+                        className: "btn-edit",
+                    },
+                    {
+                        label: "Xoá",
+                        icon: "🗑️",
+                        action: handleDelete,
+                        className: "btn-delete",
+                    },
+                ]}
             />
         </div>
     );

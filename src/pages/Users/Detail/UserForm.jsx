@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { userService } from "../../../services/userService";
 import "./UserForm.scss";
 
 const roles = ["admin", "user", "moderator"];
-
-// 🔧 Giả lập dữ liệu user
-const fakeUserData = Array.from({ length: 50 }, (_, i) => ({
-    id: i + 1,
-    username: `user${i + 1}`,
-    email: `user${i + 1}@example.com`,
-    role: roles[i % roles.length],
-}));
 
 const UserForm = () => {
     const { id } = useParams();
@@ -25,27 +19,35 @@ const UserForm = () => {
 
     useEffect(() => {
         if (isEdit) {
-            const found = fakeUserData.find((u) => u.id === parseInt(id));
-            if (found) setUser({ ...found });
-            else alert("Không tìm thấy người dùng");
+            userService
+                .getUserById(id)
+                .then((data) => setUser(data))
+                .catch((err) => {
+                    toast.error("Không tìm thấy người dùng!");
+                    navigate("/users");
+                });
         }
-    }, [id, isEdit]);
+    }, [id, isEdit, navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUser((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (isEdit) {
-            alert(`✅ Đã cập nhật user "${user.username}"`);
-        } else {
-            alert(`🆕 Đã thêm mới user "${user.username}"`);
+        try {
+            if (isEdit) {
+                await userService.updateUser(id, user);
+                toast.success("✅ Cập nhật người dùng thành công");
+            } else {
+                await userService.createUser(user);
+                toast.success("🆕 Thêm người dùng thành công");
+            }
+            navigate("/users");
+        } catch (error) {
+            toast.error("❌ Lỗi khi lưu người dùng");
         }
-
-        navigate("/users");
     };
 
     return (

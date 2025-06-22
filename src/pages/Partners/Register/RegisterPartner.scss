@@ -1,0 +1,141 @@
+.register-partner-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e3f2fd, #fce4ec);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  font-family: "Poppins", sans-serif;
+  background-size: 200% 200%;
+  animation: bgShift 10s ease infinite;
+}
+
+@keyframes bgShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.register-partner-form {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  padding: 48px;
+  width: 100%;
+  max-width: 700px;
+  box-shadow:
+          inset 0 0 0.5px rgba(255, 255, 255, 0.5),
+          0 30px 50px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeIn 0.6s ease;
+}
+
+.register-partner-form h2 {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 32px;
+  color: #2e3a59;
+  position: relative;
+
+  &::after {
+    content: "";
+    display: block;
+    height: 4px;
+    width: 60px;
+    background: #42a5f5;
+    margin: 12px auto 0;
+    border-radius: 2px;
+  }
+}
+
+.register-partner-form input,
+.register-partner-form textarea,
+.register-partner-form select {
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow:
+          inset 1px 1px 3px rgba(0, 0, 0, 0.05),
+          3px 3px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s ease;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.4);
+    background: rgba(255, 255, 255, 0.95);
+  }
+}
+
+.register-partner-form select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='70,100 40,40 100,40' fill='%23999'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px;
+  cursor: pointer;
+}
+
+.register-partner-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.register-partner-form .file-label {
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: block;
+  color: #394a6d;
+}
+
+.register-partner-form input[type="file"] {
+  margin-bottom: 24px;
+  font-size: 14px;
+  background: none;
+  color: #555;
+}
+
+.register-partner-form button {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #42a5f5, #7e57c2);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(66, 165, 245, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(66, 165, 245, 0.4);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .register-partner-form {
+    padding: 32px 24px;
+  }
+
+  .register-partner-form h2 {
+    font-size: 26px;
+  }
+}

@@ -6,7 +6,6 @@ import MainLayout from "./layouts/MainLayout";
 import PrivateRoute from "./routes/PrivateRoute";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
-import Users from "./pages/Users/Users";
 import Hotels from "./pages/Hotel/Hotels";
 import Tours from "./pages/Tours/Tours";
 import Bookings from "./pages/Booking/Bookings";
@@ -15,8 +14,10 @@ import Partners from "./pages/Partners/Partners";
 import Settings from "./pages/Settings/Settings";
 import {ToastContainer} from "react-toastify";
 import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner.jsx";
-import UserForm from "./pages/Users/Detail/UserForm.jsx";
 import HotelForm from "./pages/Hotel/Detail/HotelForm.jsx";
+import RegisterPartner from "./pages/Partners/Register/RegisterPartner.jsx";
+import UserForm from "./pages/Users/Detail/UserForm.jsx";
+import Users from "./pages/Users/Users.jsx";
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
               <Routes>
                   {/* Route login KHÔNG dùng layout */}
                   <Route path="/login" element={<Login />} />
-
+                  <Route path="/register-partner" element={<RegisterPartner />} />
                   {/* Routes cần login -> có layout */}
                   <Route
                       path="/"
