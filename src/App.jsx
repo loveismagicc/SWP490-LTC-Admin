@@ -18,6 +18,7 @@ import HotelForm from "./pages/Hotel/Detail/HotelForm.jsx";
 import RegisterPartner from "./pages/Partners/Register/RegisterPartner.jsx";
 import UserForm from "./pages/Users/Detail/UserForm.jsx";
 import Users from "./pages/Users/Users.jsx";
+import PartnerDetailForm from "./pages/Partners/Detail/PartnerDetailForm.jsx";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
                       <Route path="bookings" element={<Bookings />} />
                       <Route path="revenue" element={<Revenue />} />
                       <Route path="partners" element={<Partners />} />
+                      <Route path="partners/:id" element={<PartnerDetailForm />} />
                       <Route path="settings" element={<Settings />} />
                   </Route>
               </Routes>

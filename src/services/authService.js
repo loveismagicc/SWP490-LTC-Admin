@@ -1,7 +1,6 @@
 import {apiService} from "./apiService";
 import {API_ENDPOINTS} from "../constants/apiEndpoints";
 
-const API_BASE_URL = "http://localhost:5000";
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
 

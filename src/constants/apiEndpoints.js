@@ -46,12 +46,14 @@ export const API_ENDPOINTS = {
     },
 
     PARTNERS: {
-        LIST: `${API_BASE}/partners`,
-        DETAIL: (id) => `${API_BASE}/partners/${id}`,
+        LIST: `${API_BASE}/partner`,
+        APPROVE: (id) => `${API_BASE}/partner/approve/${id}`,
+        REJECT: (id) => `${API_BASE}/partner/reject/${id}`,
+        DEACTIVATE: (id) => `${API_BASE}/partner/de-activate/${id}`,
+        DETAIL: (id) => `${API_BASE}/partner/${id}`,
         CREATE: `${API_BASE}/partner`,
         REGISTER: `${API_BASE}/partner/register`,
-        UPDATE: (id) => `${API_BASE}/partners/${id}`,
-        DELETE: (id) => `${API_BASE}/partners/${id}`,
+        UPDATE: (id) => `${API_BASE}/partner/${id}`,
     },
 
     SETTINGS: {

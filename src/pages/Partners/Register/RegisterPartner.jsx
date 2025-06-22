@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import "./RegisterPartner.scss";
-import { useNavigate } from "react-router-dom";
-import { partnerService } from "../../../services/partnerService.js";
-import { toast } from "react-toastify";
+import {useNavigate} from "react-router-dom";
+import {partnerService} from "../../../services/partnerService.js";
+import {toast} from "react-toastify";
+import {businessTypeMap} from "../../../utils/enum/businessTypeMap.js";
 
 const RegisterPartner = () => {
     const [form, setForm] = useState({
@@ -22,7 +23,7 @@ const RegisterPartner = () => {
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        setForm({...form, [e.target.name]: e.target.value});
     };
 
     const handleFileChange = (e) => {
@@ -36,28 +37,23 @@ const RegisterPartner = () => {
         if (licenseFile) {
             data.append("licenseFile", licenseFile);
         }
-
-        try {
-            await partnerService.register(data);
-            toast.success(
-                "Đăng ký thành công! Admin sẽ xét duyệt trong thời gian sớm nhất."
-            );
-            setForm({
-                companyName: "",
-                taxId: "",
-                email: "",
-                phone: "",
-                address: "",
-                website: "",
-                contactName: "",
-                contactPosition: "",
-                description: "",
-                businessType: "",
-            });
-            setLicenseFile(null);
-        } catch (err) {
-            toast.error("Đăng ký thất bại. Vui lòng thử lại.");
-        }
+        await partnerService.register(data);
+        toast.success(
+            "Đăng ký thành công! Admin sẽ xét duyệt trong thời gian sớm nhất."
+        );
+        setForm({
+            companyName: "",
+            taxId: "",
+            email: "",
+            phone: "",
+            address: "",
+            website: "",
+            contactName: "",
+            contactPosition: "",
+            description: "",
+            businessType: "",
+        });
+        setLicenseFile(null);
     };
 
     return (
@@ -134,13 +130,14 @@ const RegisterPartner = () => {
                     onChange={handleChange}
                     required
                 >
-                    <option value="">Chọn loại hình kinh doanh *</option>
-                    <option value="hotel">Khách sạn</option>
-                    <option value="tour">Tour du lịch</option>
-                    <option value="flight">Vé máy bay</option>
-                    <option value="transport">Vận chuyển</option>
-                    <option value="restaurant">Nhà hàng</option>
-                    <option value="other">Khác</option>
+                    <option value="" disabled>
+                        -- Chọn loại hình kinh doanh --
+                    </option>
+                    {Object.entries(businessTypeMap).map(([key, label]) => (
+                        <option key={key} value={key}>
+                            {label}
+                        </option>
+                    ))}
                 </select>
 
                 <textarea

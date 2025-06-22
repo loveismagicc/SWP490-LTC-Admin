@@ -74,6 +74,15 @@
       &.btn-delete {
         background-color: #ef4444;
       }
+      &.btn-approve {
+        background-color: #4caf50;
+      }
+      &.btn-reject {
+        background-color: #f44336;
+      }
+      &.btn-deactivate {
+        background-color: #ff9800;
+      }
 
       &:hover {
         opacity: 0.9;

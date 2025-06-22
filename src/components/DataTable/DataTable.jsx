@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState,
+    useImperativeHandle,
+    forwardRef,
+    useCallback,
+} from "react";
 import "./DataTable.scss";
 
-const DataTable = ({ columns, fetchData, actions = [], onRowClick }) => {
+const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, ref) => {
     const [data, setData] = useState([]);
     const [search, setSearch] = useState("");
     const [sortKey, setSortKey] = useState(null);
@@ -11,23 +17,38 @@ const DataTable = ({ columns, fetchData, actions = [], onRowClick }) => {
     const [limit, setLimit] = useState(10);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-            try {
-                const res = await fetchData(currentPage, limit, search);
-                setData(res.data);
-                setTotalPages(Math.ceil(res.total / limit));
-            } catch (error) {
-                console.error("Lỗi khi load data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadData();
+    // Hàm tải dữ liệu có thể tái sử dụng
+    const loadData = useCallback(async (page = currentPage, lim = limit, keyword = search) => {
+        setLoading(true);
+        try {
+            const res = await fetchData(page, lim, keyword);
+            setData(res.data);
+            setTotalPages(Math.ceil(res.total / lim));
+        } catch (error) {
+            console.error("Lỗi khi load data:", error);
+        } finally {
+            setLoading(false);
+        }
     }, [fetchData, currentPage, limit, search]);
 
-    const handleSort = (key) => {
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
+
+    // Cho phép gọi từ bên ngoài thông qua ref
+    useImperativeHandle(ref, () => ({
+        reload: () => loadData(),
+        reset: () => {
+            setSearch("");
+            setCurrentPage(1);
+            setSortKey(null);
+            setSortOrder("asc");
+            loadData(1, limit, "");
+        },
+    }));
+
+    const handleSort = (key, sortable = true) => {
+        if (!sortable) return;
         if (sortKey === key) {
             setSortOrder(sortOrder === "asc" ? "desc" : "asc");
         } else {
@@ -65,7 +86,9 @@ const DataTable = ({ columns, fetchData, actions = [], onRowClick }) => {
                     onChange={(e) => setLimit(Number(e.target.value))}
                 >
                     {[10, 20, 50].map((l) => (
-                        <option key={`limit-${l}`} value={l}>{l} bản ghi/trang</option>
+                        <option key={`limit-${l}`} value={l}>
+                            {l} bản ghi/trang
+                        </option>
                     ))}
                 </select>
             </div>
@@ -75,11 +98,21 @@ const DataTable = ({ columns, fetchData, actions = [], onRowClick }) => {
                     <thead>
                     <tr>
                         {columns.map((col) => (
-                            <th key={`header-${col.key}`} onClick={() => handleSort(col.key)}>
-                                {col.label} {sortKey === col.key ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+                            <th
+                                key={`header-${col.key}`}
+                                onClick={() => handleSort(col.key, col.sortable !== false)}
+                            >
+                                {col.label}{" "}
+                                {sortKey === col.key
+                                    ? sortOrder === "asc"
+                                        ? "▲"
+                                        : "▼"
+                                    : ""}
                             </th>
                         ))}
-                        {actions.length > 0 && <th>Hành động</th>}
+                        {(typeof actions === "function" || actions.length > 0) && (
+                            <th>Hành động</th>
+                        )}
                     </tr>
                     </thead>
                     <tbody>
@@ -96,30 +129,40 @@ const DataTable = ({ columns, fetchData, actions = [], onRowClick }) => {
                             </td>
                         </tr>
                     ) : (
-                        sortedData.map((row, idx) => (
-                            <tr key={`row-${row.id || idx}`} onClick={() => onRowClick?.(row)}>
-                                {columns.map((col) => (
-                                    <td key={`cell-${row.id || idx}-${col.key}`}>{row[col.key]}</td>
-                                ))}
-                                {actions.length > 0 && (
-                                    <td>
-                                        {actions.map((act, actionIdx) => (
-                                            <button
-                                                key={`action-${row.id || idx}-${actionIdx}`}
-                                                className={`btn ${act.className || ""}`}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    act.action(row);
-                                                }}
-                                                title={act.label}
-                                            >
-                                                {act.icon || act.label}
-                                            </button>
-                                        ))}
-                                    </td>
-                                )}
-                            </tr>
-                        ))
+                        sortedData.map((row, idx) => {
+                            const rowActions = typeof actions === "function" ? actions(row) : actions;
+                            return (
+                                <tr
+                                    key={`row-${row.id || row._id || idx}`}
+                                    onClick={() => onRowClick?.(row)}
+                                >
+                                    {columns.map((col) => (
+                                        <td key={`cell-${idx}-${col.key}`}>
+                                            {col.render
+                                                ? col.render(row[col.key], row)
+                                                : row[col.key]}
+                                        </td>
+                                    ))}
+                                    {rowActions?.length > 0 && (
+                                        <td>
+                                            {rowActions.map((act, i) => (
+                                                <button
+                                                    key={`action-${idx}-${i}`}
+                                                    className={`btn ${act.className || ""}`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        act.action(row);
+                                                    }}
+                                                    title={act.label}
+                                                >
+                                                    {act.icon || act.label}
+                                                </button>
+                                            ))}
+                                        </td>
+                                    )}
+                                </tr>
+                            );
+                        })
                     )}
                     </tbody>
                 </table>
@@ -133,7 +176,9 @@ const DataTable = ({ columns, fetchData, actions = [], onRowClick }) => {
                 >
                     ← Trước
                 </button>
-                <span>Trang {currentPage} / {totalPages}</span>
+                <span>
+                    Trang {currentPage} / {totalPages}
+                </span>
                 <button
                     className="btn"
                     disabled={currentPage === totalPages}
@@ -144,6 +189,6 @@ const DataTable = ({ columns, fetchData, actions = [], onRowClick }) => {
             </div>
         </div>
     );
-};
+});
 
 export default DataTable;

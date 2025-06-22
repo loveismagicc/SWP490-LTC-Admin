@@ -1,16 +1,16 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../components/DataTable/DataTable";
 import { userService } from "../../services/userService";
 import "./Users.scss";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 const Users = () => {
     const navigate = useNavigate();
+    const tableRef = useRef();
 
     const columns = [
-        { key: "id", label: "ID" },
-        { key: "username", label: "Tên đăng nhập" },
+        { key: "_id", label: "ID" },
         { key: "email", label: "Email" },
         { key: "role", label: "Vai trò" },
     ];
@@ -27,17 +27,19 @@ const Users = () => {
         navigate(`/users/${row._id}`);
     };
 
-    const handleDelete = (row) => {
+    const handleDelete = async (row) => {
         if (window.confirm(`Bạn có chắc chắn muốn xoá user ${row.email}?`)) {
-            userService.deleteUser(row._id).then(() => {
+            try {
+                await userService.deleteUser(row._id);
                 toast.success("Xoá thành công!");
-                navigate("/users");
-            });
+                tableRef.current?.reload();
+            } catch (error) {
+                toast.error("Xoá thất bại!");
+            }
         }
     };
 
     const handleRowClick = (row) => {
-        console.log(row);
         navigate(`/users/${row._id}`);
     };
 
@@ -51,6 +53,7 @@ const Users = () => {
             </div>
 
             <DataTable
+                ref={tableRef}
                 columns={columns}
                 fetchData={fetchData}
                 onRowClick={handleRowClick}

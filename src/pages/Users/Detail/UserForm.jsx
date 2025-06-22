@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { userService } from "../../../services/userService";
 import "./UserForm.scss";
 
-const roles = ["admin", "user", "moderator"];
+const roles = ['customer', 'hotel_owner', 'tour_provider', 'admin'];
 
 const UserForm = () => {
     const { id } = useParams();
@@ -12,16 +12,22 @@ const UserForm = () => {
     const navigate = useNavigate();
 
     const [user, setUser] = useState({
-        username: "",
+        password: "",
         email: "",
-        role: "user",
+        role: "customer",
     });
 
     useEffect(() => {
         if (isEdit) {
             userService
                 .getUserById(id)
-                .then((data) => setUser(data))
+                .then((data) =>
+                    setUser({
+                        email: data.email,
+                        role: data.role,
+                        password: "", // không hiển thị mật khẩu đã mã hoá
+                    })
+                )
                 .catch((err) => {
                     toast.error("Không tìm thấy người dùng!");
                     navigate("/users");
@@ -37,13 +43,21 @@ const UserForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const payload = { ...user };
+
+            // Nếu đang sửa và không nhập mật khẩu mới thì không gửi trường password
+            if (isEdit && !payload.password.trim()) {
+                delete payload.password;
+            }
+
             if (isEdit) {
-                await userService.updateUser(id, user);
+                await userService.updateUser(id, payload);
                 toast.success("✅ Cập nhật người dùng thành công");
             } else {
-                await userService.createUser(user);
+                await userService.createUser(payload);
                 toast.success("🆕 Thêm người dùng thành công");
             }
+
             navigate("/users");
         } catch (error) {
             toast.error("❌ Lỗi khi lưu người dùng");
@@ -62,17 +76,6 @@ const UserForm = () => {
                 )}
 
                 <div className="form-group">
-                    <label>Tên đăng nhập</label>
-                    <input
-                        type="text"
-                        name="username"
-                        value={user.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                <div className="form-group">
                     <label>Email</label>
                     <input
                         type="email"
@@ -80,6 +83,19 @@ const UserForm = () => {
                         value={user.email}
                         onChange={handleChange}
                         required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label>
+                        Mật khẩu {isEdit && <small>(Để trống nếu không đổi)</small>}
+                    </label>
+                    <input
+                        type="text"
+                        name="password"
+                        value={user.password}
+                        onChange={handleChange}
+                        placeholder={isEdit ? "••••••••" : ""}
                     />
                 </div>
 
