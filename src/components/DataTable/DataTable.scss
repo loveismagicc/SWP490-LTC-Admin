@@ -116,4 +116,29 @@
       }
     }
   }
+  .data-table__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 12px 0;
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      min-width: 120px;
+
+      strong {
+        margin-bottom: 4px;
+      }
+
+      .checkbox-option {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 2px;
+      }
+    }
+  }
+
 }

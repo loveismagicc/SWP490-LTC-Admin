@@ -81,6 +81,14 @@ function App() {
                             }
                         />
                         <Route
+                            path="partners/new"
+                            element={
+                                <PrivateRoute allowedRoles={["admin"]}>
+                                    <PartnerDetailForm />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
                             path="partners/:id"
                             element={
                                 <PrivateRoute allowedRoles={["admin"]}>

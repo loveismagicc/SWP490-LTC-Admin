@@ -10,6 +10,7 @@ import "./DataTable.scss";
 const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, ref) => {
     const [data, setData] = useState([]);
     const [search, setSearch] = useState("");
+    const [filters, setFilters] = useState({});
     const [sortKey, setSortKey] = useState(null);
     const [sortOrder, setSortOrder] = useState("asc");
     const [currentPage, setCurrentPage] = useState(1);
@@ -17,25 +18,36 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
     const [limit, setLimit] = useState(10);
     const [loading, setLoading] = useState(false);
 
-    // Hàm tải dữ liệu có thể tái sử dụng
-    const loadData = useCallback(async (page = currentPage, lim = limit, keyword = search) => {
+    const loadData = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetchData(page, lim, keyword);
+            const res = await fetchData(currentPage, limit, search, filters);
             setData(res.data);
-            setTotalPages(Math.ceil(res.total / lim));
+            setTotalPages(Math.ceil(res.total / limit));
         } catch (error) {
             console.error("Lỗi khi load data:", error);
         } finally {
             setLoading(false);
         }
-    }, [fetchData, currentPage, limit, search]);
+    }, [currentPage, limit, search, JSON.stringify(filters), fetchData]);
 
     useEffect(() => {
-        loadData();
-    }, [loadData]);
+        const fetch = async () => {
+            setLoading(true);
+            try {
+                const res = await fetchData(currentPage, limit, search, filters);
+                setData(res.data);
+                setTotalPages(Math.ceil(res.total / limit));
+            } catch (error) {
+                console.error("Lỗi khi load data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    // Cho phép gọi từ bên ngoài thông qua ref
+        fetch();
+    }, [currentPage, limit, search, filters]);
+
     useImperativeHandle(ref, () => ({
         reload: () => loadData(),
         reset: () => {
@@ -43,14 +55,14 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
             setCurrentPage(1);
             setSortKey(null);
             setSortOrder("asc");
-            loadData(1, limit, "");
+            setFilters({});
         },
     }));
 
     const handleSort = (key, sortable = true) => {
         if (!sortable) return;
         if (sortKey === key) {
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+            setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
         } else {
             setSortKey(key);
             setSortOrder("asc");
@@ -66,6 +78,20 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
             return 0;
         })
         : data;
+
+    const handleFilterChange = (key, value, checked) => {
+        setFilters((prev) => {
+            const current = prev[key] || [];
+            const updated = checked
+                ? [...current, value]
+                : current.filter((v) => v !== value);
+            return {
+                ...prev,
+                [key]: updated,
+            };
+        });
+        setCurrentPage(1);
+    };
 
     return (
         <div className="data-table">
@@ -83,7 +109,10 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
                 <select
                     className="data-table__limit"
                     value={limit}
-                    onChange={(e) => setLimit(Number(e.target.value))}
+                    onChange={(e) => {
+                        setLimit(Number(e.target.value));
+                        setCurrentPage(1);
+                    }}
                 >
                     {[10, 20, 50].map((l) => (
                         <option key={`limit-${l}`} value={l}>
@@ -91,6 +120,28 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
                         </option>
                     ))}
                 </select>
+            </div>
+
+            <div className="data-table__filters">
+                {columns.map((col) =>
+                    col.filterOptions ? (
+                        <div key={`filter-${col.key}`} className="filter-group">
+                            <strong>{col.label}</strong>
+                            {col.filterOptions.map((opt) => (
+                                <label key={opt} className="checkbox-option">
+                                    <input
+                                        type="checkbox"
+                                        checked={filters[col.key]?.includes(opt) || false}
+                                        onChange={(e) =>
+                                            handleFilterChange(col.key, opt, e.target.checked)
+                                        }
+                                    />
+                                    {opt}
+                                </label>
+                            ))}
+                        </div>
+                    ) : null
+                )}
             </div>
 
             <div className="data-table__scroll">
@@ -110,30 +161,24 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
                                     : ""}
                             </th>
                         ))}
-                        {(typeof actions === "function" || actions.length > 0) && (
-                            <th>Hành động</th>
-                        )}
+                        {(typeof actions === "function" || actions.length > 0) && <th>Hành động</th>}
                     </tr>
                     </thead>
                     <tbody>
                     {loading ? (
                         <tr>
-                            <td colSpan={columns.length + 1} className="data-table__loading">
-                                Đang tải dữ liệu...
-                            </td>
+                            <td colSpan={columns.length + 1}>Đang tải dữ liệu...</td>
                         </tr>
                     ) : sortedData.length === 0 ? (
                         <tr>
-                            <td colSpan={columns.length + 1} className="data-table__empty">
-                                Không có dữ liệu
-                            </td>
+                            <td colSpan={columns.length + 1}>Không có dữ liệu</td>
                         </tr>
                     ) : (
                         sortedData.map((row, idx) => {
                             const rowActions = typeof actions === "function" ? actions(row) : actions;
                             return (
                                 <tr
-                                    key={`row-${row.id || row._id || idx}`}
+                                    key={`row-${row._id || row.id || idx}`}
                                     onClick={() => onRowClick?.(row)}
                                 >
                                     {columns.map((col) => (
@@ -147,13 +192,12 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
                                         <td>
                                             {rowActions.map((act, i) => (
                                                 <button
-                                                    key={`action-${idx}-${i}`}
+                                                    key={`action-${i}`}
                                                     className={`btn ${act.className || ""}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         act.action(row);
                                                     }}
-                                                    title={act.label}
                                                 >
                                                     {act.icon || act.label}
                                                 </button>

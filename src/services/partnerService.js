@@ -28,12 +28,27 @@ export const partnerService = {
             method: "PATCH",
         }),
 
-    getPartners: (page, limit, search) =>
+    getPartners: (page, limit, search, resolvedFilters) =>
         apiService.request({
             url: API_ENDPOINTS.PARTNERS.LIST,
             method: "GET",
-            params: { page, limit, search },
+            params: { page, limit, search, ...resolvedFilters },
         }),
     getPartnerById: (id) =>
         apiService.request({url: API_ENDPOINTS.PARTNERS.DETAIL(id), method: "GET"}),
+
+    createPartner: (data) =>
+        apiService.request({
+            url: API_ENDPOINTS.PARTNERS.CREATE,
+            method: "POST",
+            data,
+        }),
+
+    // 🛠️ Cập nhật đối tác
+    updatePartner: (id, data) =>
+        apiService.request({
+            url: API_ENDPOINTS.PARTNERS.UPDATE(id),
+            method: "PUT",
+            data,
+        }),
 };
