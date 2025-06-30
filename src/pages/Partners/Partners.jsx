@@ -1,11 +1,11 @@
-import React, { useRef, useState } from "react";
+import React, {useRef, useState} from "react";
 import DataTable from "../../components/DataTable/DataTable";
-import { partnerService } from "../../services/partnerService";
-import { toast } from "react-toastify";
+import {partnerService} from "../../services/partnerService";
+import {toast} from "react-toastify";
 import "./Partners.scss";
-import { partnerStatusMap } from "../../utils/enum/partnerStatusMap.js";
-import { businessTypeMap } from "../../utils/enum/businessTypeMap.js";
-import { useNavigate } from "react-router-dom";
+import {partnerStatusMap} from "../../utils/enum/partnerStatusMap.js";
+import {businessTypeMap} from "../../utils/enum/businessTypeMap.js";
+import {useNavigate} from "react-router-dom";
 import PopupModal from "../../components/Popup/PopupModal.jsx";
 
 const Partners = () => {
@@ -13,10 +13,10 @@ const Partners = () => {
     const navigate = useNavigate();
 
     const columns = [
-        { key: "companyName", label: "Tên công ty" },
-        { key: "taxId", label: "Mã số thuế" },
-        { key: "email", label: "Email" },
-        { key: "phone", label: "SĐT" },
+        {key: "companyName", label: "Tên công ty"},
+        {key: "taxId", label: "Mã số thuế"},
+        {key: "email", label: "Email"},
+        {key: "phone", label: "SĐT"},
         {
             key: "businessType",
             label: "Loại hình kinh doanh",
@@ -37,7 +37,8 @@ const Partners = () => {
     const [popupConfig, setPopupConfig] = useState({
         title: "",
         message: "",
-        onConfirm: () => {},
+        onConfirm: () => {
+        },
     });
 
     const openConfirm = (title, message, callback) => {
@@ -123,6 +124,18 @@ const Partners = () => {
         });
     };
 
+    const handleReactivate = async (row) => {
+        openConfirm("Tái kích hoạt", "Bạn có chắc muốn tái kích hoạt đối tác này?", async () => {
+            try {
+                await partnerService.approvePartner(row._id); // dùng lại API duyệt
+                toast.success("🔁 Đã tái kích hoạt đối tác");
+                tableRef.current?.reload();
+            } catch (err) {
+                toast.error("❌ Lỗi khi tái kích hoạt đối tác");
+            }
+        });
+    };
+
 
     const getActions = (row) => {
         const actions = [];
@@ -148,6 +161,13 @@ const Partners = () => {
                 icon: "⛔",
                 action: handleDeactivate,
                 className: "btn-deactivate",
+            });
+        } else if (row.status === "deactivate") {
+            actions.push({
+                label: "Tái kích hoạt",
+                icon: "🔁",
+                action: handleReactivate,
+                className: "btn-reactivate",
             });
         }
 

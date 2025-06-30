@@ -1,77 +1,104 @@
+import axios from "axios";
 import { toast } from "react-toastify";
-import { authService } from "./authService.js";
+import { authService } from "./authService";
 
-const makeRequest = async ({
-                               url,
-                               method = "GET",
-                               data = null,
-                               params = null,
-                               requiresAuth = true,
-                               showLoading = () => {},
-                               hideLoading = () => {},
-                           }) => {
+const axiosInstance = axios.create({
+    baseURL: "",
+    timeout: 15000,
+});
+
+axiosInstance.interceptors.request.use(
+    async (config) => {
+        const token = await authService.getValidAccessToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        if (
+            config.data &&
+            typeof config.data === "object" &&
+            !(config.data instanceof FormData)
+        ) {
+            config.headers["Content-Type"] = "application/json";
+        }
+
+        return config;
+    },
+    (error) => {
+        toast.error("❌ Lỗi gửi request.");
+        return Promise.reject(error);
+    }
+);
+
+axiosInstance.interceptors.response.use(
+    (response) => {
+        if (response.data?.success === false) {
+            const msg = response.data.message || "❌ Lỗi từ máy chủ";
+            toast.error(msg);
+            throw new Error(msg);
+        }
+        return response.data?.data ?? response.data;
+    },
+    (error) => {
+        let msg = "🚨 Đã xảy ra lỗi không xác định.";
+
+        if (error.response) {
+            const { status, data } = error.response;
+
+            if (data?.message) msg = data.message;
+            else if (status === 400) msg = "🚫 Yêu cầu không hợp lệ (400)";
+            else if (status === 401) {
+                msg = "🔒 Phiên đăng nhập hết hạn";
+                authService.logout();
+                window.location.href = "/login";
+            } else if (status === 403) msg = "⛔ Không có quyền truy cập";
+            else if (status === 404) msg = "🔍 Không tìm thấy (404)";
+            else if (status >= 500) msg = "💥 Lỗi máy chủ";
+            else msg = `❌ Lỗi ${status}`;
+        } else if (error.request) {
+            msg = "🌐 Không thể kết nối đến máy chủ";
+        } else if (error.message) {
+            msg = error.message;
+        }
+
+        toast.error(msg);
+        return Promise.reject(error);
+    }
+);
+
+const safeCall = async (axiosMethod, ...args) => {
     try {
-        showLoading();
-
-        const token = requiresAuth ? await authService.getValidAccessToken() : null;
-        const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
-
-        const headers = {
-            ...(requiresAuth && token ? { Authorization: `Bearer ${token}` } : {}),
-            ...(!isFormData ? { "Content-Type": "application/json" } : {}),
-        };
-
-        // Xử lý query string
-        if (params && typeof params === "object") {
-            const queryString = new URLSearchParams(params).toString();
-            url += (url.includes("?") ? "&" : "?") + queryString;
-        }
-
-        const res = await fetch(url, {
-            method,
-            headers,
-            body: method !== "GET" && data
-                ? (isFormData ? data : JSON.stringify(data))
-                : null,
-        });
-
-        const contentType = res.headers.get("content-type") || "";
-        const isJson = contentType.includes("application/json");
-        const responseData = isJson ? await res.json() : null;
-        const rawText = !isJson ? await res.text() : null;
-
-        if (!res.ok || (responseData && responseData.success === false)) {
-            const message = responseData?.message || rawText || `Lỗi ${res.status}: ${res.statusText}`;
-            toast.error(message);
-            console.error("API Error:", { url, method, data, responseData, rawText });
-            throw new Error(message);
-        }
-
-        return responseData?.data || responseData;
-    } catch (err) {
-        console.error("Unhandled API error:", err);
-        throw err;
-    } finally {
-        hideLoading();
+        return await axiosMethod(...args);
+    } catch (error) {
+        console.error("API Error:", error);
+        throw error;
     }
 };
 
-// Public API
 export const apiService = {
-    request: makeRequest,
+    request: ({ url, method = "GET", data = {}, params = {}, config = {} }) =>
+        safeCall(axiosInstance.request, {
+            url,
+            method,
+            data,
+            params,
+            ...config,
+        }),
 
-    get: (url, params = {}, options = {}) =>
-        makeRequest({ url, method: "GET", params, ...options }),
+    get: (url, params = {}, config = {}) =>
+        safeCall(axiosInstance.get, url, { params, ...config }),
 
-    post: (url, data = {}, options = {}) =>
-        makeRequest({ url, method: "POST", data, ...options }),
+    post: (url, data = {}, config = {}) =>
+        safeCall(axiosInstance.post, url, data, config),
 
-    put: (url, data = {}, options = {}) =>
-        makeRequest({ url, method: "PUT", data, ...options }),
+    put: (url, data = {}, config = {}) =>
+        safeCall(axiosInstance.put, url, data, config),
 
-    patch: (url, data = {}, options = {}) =>
-        makeRequest({ url, method: "PATCH", data, ...options }),
+    patch: (url, data = {}, config = {}) =>
+        safeCall(axiosInstance.patch, url, data, config),
 
-    delete: (url, data = {}, options = {}) =>
-        makeRequest({ url, method: "DELETE", data, ...options }),
+    delete: (url, config = {}) =>
+        safeCall(axiosInstance.delete, url, config),
+
+    raw: axiosInstance,
 };

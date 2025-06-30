@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./Login.scss";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/authService";
+import {toast} from "react-toastify";
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -10,9 +11,17 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        try {
             const data = await authService.login(username, password);
-            localStorage.setItem('accessToken', data.accessToken);
+
+            if (data.user?.status === 'banned') {
+                throw new Error("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+            }
+            localStorage.setItem("accessToken", data.accessToken);
             navigate("/");
+        } catch (error) {
+            toast.error(error.message || "Đăng nhập thất bại");
+        }
     };
 
     return (

@@ -44,11 +44,16 @@ export const partnerService = {
             data,
         }),
 
-    // 🛠️ Cập nhật đối tác
     updatePartner: (id, data) =>
         apiService.request({
             url: API_ENDPOINTS.PARTNERS.UPDATE(id),
             method: "PUT",
             data,
+        }),
+
+    deletePartner: (id) =>
+        apiService.request({
+            url: API_ENDPOINTS.PARTNERS.DELETE(id),
+            method: "DELETE",
         }),
 };

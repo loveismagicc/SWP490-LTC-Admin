@@ -21,7 +21,7 @@ const Sidebar = () => {
     ],
     hotel_owner: [
       { to: "/", label: "Dashboard", exact: true },
-      { to: "/hotels", label: "Quản lý Khách sạn" },
+      { to: "/hotels", label: "Quản lý Phòng" },
       { to: "/bookings", label: "Quản lý Đơn đặt chỗ" },
     ],
     tour_provider: [

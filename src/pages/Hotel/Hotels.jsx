@@ -1,69 +1,159 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useRef, useState } from "react";
 import DataTable from "../../components/DataTable/DataTable";
+import { hotelService } from "../../services/hotelService";
+import { toast } from "react-toastify";
+import "./Hotels.scss";
+import PopupModal from "../../components/Popup/PopupModal.jsx";
+import { useNavigate } from "react-router-dom";
+import { hotelStatusMap } from "../../utils/enum/hotelStatusMap"; // tạo map giống partnerStatusMap
 
 const Hotels = () => {
+    const tableRef = useRef();
     const navigate = useNavigate();
 
-    // Dữ liệu giả lập
-    const hotels = [];
-    for (let i = 1; i <= 70; i++) {
-        hotels.push({
-            id: i,
-            name: `Khách sạn ${i}`,
-            location: `Thành phố ${i % 10}`,
-            rating: (Math.random() * 5).toFixed(1),
-            price: (500000 + i * 10000).toLocaleString() + "₫",
-        });
-    }
-
     const columns = [
-        { key: "id", label: "ID" },
         { key: "name", label: "Tên khách sạn" },
-        { key: "location", label: "Địa điểm" },
-        { key: "rating", label: "Đánh giá ⭐" },
-        { key: "price", label: "Giá trung bình / đêm" },
+        { key: "address", label: "Địa chỉ" },
+        {
+            key: "status",
+            label: "Trạng thái",
+            render: (value) => hotelStatusMap[value] || value,
+            filterOptions: Object.keys(hotelStatusMap).map((key) => hotelStatusMap[key]),
+            filterOptionsMap: hotelStatusMap,
+        },
     ];
 
-    const fetchData = async (page, limit, search) => {
-        let filtered = hotels;
+    const [showModal, setShowModal] = useState(false);
+    const [popupConfig, setPopupConfig] = useState({
+        title: "",
+        message: "",
+        onConfirm: () => {},
+    });
 
-        if (search) {
-            filtered = hotels.filter(
-                (hotel) =>
-                    hotel.name.toLowerCase().includes(search.toLowerCase()) ||
-                    hotel.location.toLowerCase().includes(search.toLowerCase())
-            );
+    const openConfirm = (title, message, callback) => {
+        setPopupConfig({
+            title,
+            message,
+            onConfirm: () => {
+                callback();
+                setShowModal(false);
+            },
+        });
+        setShowModal(true);
+    };
+
+    const fetchData = async (page, limit, search, filters = {}) => {
+        const resolvedFilters = {};
+        for (const key in filters) {
+            if (key === "status") {
+                resolvedFilters[key] = Object.keys(hotelStatusMap).filter(
+                    (k) => filters[key].includes(hotelStatusMap[k])
+                );
+            } else {
+                resolvedFilters[key] = filters[key];
+            }
         }
 
-        const start = (page - 1) * limit;
-        const end = start + limit;
-
+        const res = await hotelService.getHotels(page, limit, search, resolvedFilters);
         return {
-            data: filtered.slice(start, end),
-            total: filtered.length,
+            data: res.data,
+            total: res.total,
         };
     };
 
-    const handleEdit = (id) => navigate(`/hotels/${id}`);
-    const handleDelete = (id) => alert(`Xoá khách sạn ID: ${id}`);
-    const handleRowClick = (row) => navigate(`/hotels/${row.id}`);
+    const handleApprove = async (row) => {
+        openConfirm("Duyệt", "Bạn có chắc muốn duyệt khách sạn này?", async () => {
+            try {
+                await hotelService.approveHotel(row._id);
+                toast.success("✅ Đã duyệt khách sạn");
+                tableRef.current?.reload();
+            } catch {
+                toast.error("❌ Lỗi khi duyệt khách sạn");
+            }
+        });
+    };
+
+    const handleReject = async (row) => {
+        openConfirm("Từ chối", "Bạn có chắc muốn từ chối khách sạn này?", async () => {
+            try {
+                await hotelService.rejectHotel(row._id);
+                toast.success("🚫 Đã từ chối khách sạn");
+                tableRef.current?.reload();
+            } catch {
+                toast.error("❌ Lỗi khi từ chối khách sạn");
+            }
+        });
+    };
+
+    const handleToggleVisibility = async (row) => {
+        openConfirm("Ẩn / Hiện", "Bạn có chắc muốn thay đổi trạng thái hiển thị?", async () => {
+            try {
+                await hotelService.toggleVisibility(row._id);
+                toast.success("👁️ Đã thay đổi trạng thái hiển thị");
+                tableRef.current?.reload();
+            } catch {
+                toast.error("❌ Lỗi khi cập nhật hiển thị");
+            }
+        });
+    };
+
+    const handleRowClick = (row) => {
+        navigate(`/hotels/${row._id}`);
+    };
+
+    const getActions = (row) => {
+        const actions = [];
+
+        if (row.status === "pending") {
+            actions.push({
+                label: "Duyệt",
+                icon: "✅",
+                action: handleApprove,
+                className: "btn-approve",
+            });
+            actions.push({
+                label: "Từ chối",
+                icon: "🚫",
+                action: handleReject,
+                className: "btn-reject",
+            });
+        }
+
+        actions.push({
+            label: "Ẩn / Hiện",
+            icon: "👁️",
+            action: handleToggleVisibility,
+            className: "btn-toggle",
+        });
+
+        return actions;
+    };
 
     return (
         <div>
             <div className="table-header">
-                <h2>Danh sách Khách Sạn</h2>
+                <h2>Quản lý khách sạn</h2>
                 <button className="btn-add" onClick={() => navigate("/hotels/new")}>
                     ➕ Thêm mới
                 </button>
             </div>
+
             <DataTable
+                ref={tableRef}
                 columns={columns}
                 fetchData={fetchData}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+                actions={getActions}
                 onRowClick={handleRowClick}
             />
+
+            {showModal && (
+                <PopupModal
+                    title={popupConfig.title}
+                    message={popupConfig.message}
+                    onClose={() => setShowModal(false)}
+                    onConfirm={popupConfig.onConfirm}
+                />
+            )}
         </div>
     );
 };

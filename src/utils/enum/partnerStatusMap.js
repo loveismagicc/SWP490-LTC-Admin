@@ -3,4 +3,5 @@ export const partnerStatusMap = {
     active: "✅ Đã kích hoạt",
     rejected: "❌ Bị từ chối",
     banned: "🚫 Đã bị khóa",
+    deactivate: "🔒 Đã bị vô hiệu hóa",
 };

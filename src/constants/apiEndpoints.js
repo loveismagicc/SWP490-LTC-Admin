@@ -13,14 +13,20 @@ export const API_ENDPOINTS = {
         CREATE: `${API_BASE}/user`,
         UPDATE: (id) => `${API_BASE}/user/${id}`,
         DELETE: (id) => `${API_BASE}/user/${id}`,
+        DEACTIVATE: (id) => `${API_BASE}/user/de-activate/${id}`,
+        REACTIVATE: (id) => `${API_BASE}/user/re-activate/${id}`,
     },
 
     HOTELS: {
-        LIST: `${API_BASE}/hotels`,
-        DETAIL: (id) => `${API_BASE}/hotels/${id}`,
-        CREATE: `${API_BASE}/hotels`,
-        UPDATE: (id) => `${API_BASE}/hotels/${id}`,
-        DELETE: (id) => `${API_BASE}/hotels/${id}`,
+        LIST: `${API_BASE}/hotel`,
+        CREATE: `${API_BASE}/hotel`,
+        DETAIL: (id) => `${API_BASE}/hotel/${id}`,
+        APPROVE: (id) => `${API_BASE}/hotel/${id}/approve`,
+        REJECT: (id) => `${API_BASE}/hotel/${id}/reject`,
+        TOGGLE_VISIBILITY: (id) => `${API_BASE}/hotel/${id}/toggle-visibility`,
+        UPDATE: (id) => `${API_BASE}/hotel/${id}`,
+        UPDATE_IMAGES: (id) => `${API_BASE}/hotels/${id}/images`,
+        DELETE: (id) => `${API_BASE}/hotel/${id}`,
     },
 
     TOURS: {
@@ -54,6 +60,7 @@ export const API_ENDPOINTS = {
         CREATE: `${API_BASE}/partner`,
         REGISTER: `${API_BASE}/partner/register`,
         UPDATE: (id) => `${API_BASE}/partner/${id}`,
+        DELETE: (id) => `${API_BASE}/partner/${id}`,
     },
 
     SETTINGS: {
