@@ -31,7 +31,6 @@ const Users = () => {
     };
 
     const columns = [
-        {key: "_id", label: "ID"},
         {key: "email", label: "Email"},
         {key: "role", label: "Vai trò"},
         {

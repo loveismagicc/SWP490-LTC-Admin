@@ -4,7 +4,6 @@ import { authService } from "../services/authService";
 
 const PrivateRoute = ({ children, allowedRoles }) => {
     const user = authService.getUser();
-    console.log(user);
 
     if (!authService.isLoggedIn()) {
         return <Navigate to="/login" replace />;

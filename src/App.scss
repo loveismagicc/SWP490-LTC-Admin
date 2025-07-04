@@ -1,22 +1,27 @@
+/* App.scss */
 .app {
   display: flex;
-  height: 100vh; // chiếm toàn bộ chiều cao trình duyệt
-  width: 100vw;  // chiếm toàn bộ chiều ngang
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
 
   .sidebar {
-    width: 220px;
+    width: 240px;
     background-color: #111827;
     color: white;
     height: 100vh;
-    flex-shrink: 0; // không co nhỏ lại
+    flex-shrink: 0;
+    position: relative; // tránh bị absolute đè lên
+    z-index: 1;
   }
 
   .main-content {
     flex: 1;
-    min-width: 0; // rất quan trọng để flex hoạt động đúng!
-    background-color: #ecf0f1;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color: #f4f6f8;
     overflow-y: auto;
+    padding: 20px;
+    min-width: 0;
   }
 }

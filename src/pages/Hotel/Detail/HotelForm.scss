@@ -1,48 +1,122 @@
 .hotel-form-page {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 1200px; // tăng từ 900 lên 1200
+  width: 100%;       // đảm bảo full chiều ngang trong max-width
+  margin: 2rem auto;
+  padding: 2rem 3rem;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
   h2 {
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    font-size: 2rem;
+    font-weight: 600;
   }
 
   .hotel-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr; // chia 2 cột
+    gap: 1.5rem;
 
-    label {
+    .form-group {
       display: flex;
       flex-direction: column;
-      font-weight: 500;
-      font-size: 0.95rem;
-      color: #333;
+      grid-column: span 1;
+
+      label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #34495e;
+      }
+
+      input,
+      select,
+      textarea {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border: 1px solid #dcdde1;
+        border-radius: 8px;
+        transition: all 0.2s;
+
+        &:focus {
+          border-color: #3498db;
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+          outline: none;
+        }
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      small {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: #7f8c8d;
+      }
+
+      .image-preview-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+
+        img {
+          width: 80px;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 6px;
+          border: 1px solid #ccc;
+        }
+      }
     }
 
-    input,
-    select {
-      padding: 0.6rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1rem;
+    .map-group {
+      grid-column: span 2;
     }
 
     .btn-save {
-      margin-top: 1rem;
-      padding: 0.75rem;
-      font-size: 1rem;
-      background-color: #007bff;
-      color: white;
+      grid-column: span 2;
+      justify-self: end;
+      padding: 0.9rem 1.5rem;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: #fff;
+      font-weight: 600;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: 0.3s ease;
+      transition: background 0.3s ease;
 
       &:hover {
-        background-color: #0056b3;
+        background: linear-gradient(135deg, #2980b9, #1c658c);
       }
+    }
+  }
+
+  .leaflet-container {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #dcdde1;
+    margin-top: 0.5rem;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .hotel-form-page {
+    padding: 1rem;
+  }
+
+  .hotel-form {
+    grid-template-columns: 1fr;
+
+    .btn-save {
+      width: 100%;
+      justify-self: stretch;
     }
   }
 }

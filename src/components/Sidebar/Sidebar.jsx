@@ -1,4 +1,17 @@
 import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Users,
+  Hotel,
+  Briefcase,
+  CalendarCheck2,
+  BarChart2,
+  Settings,
+  Star,
+  Building2,
+  FileText,
+} from "lucide-react";
+
 import "./Sidebar.scss";
 import { authService } from "../../services/authService";
 
@@ -10,43 +23,81 @@ const Sidebar = () => {
 
   const menuItems = {
     admin: [
-      { to: "/", label: "Dashboard", exact: true },
-      { to: "/users", label: "Quản lý User" },
-      { to: "/tours", label: "Quản lý Tour" },
-      { to: "/hotels", label: "Quản lý Khách sạn" },
-      { to: "/partners", label: "Quản lý Đối tác" },
-      { to: "/bookings", label: "Quản lý Đơn đặt chỗ" },
-      { to: "/revenue", label: "Quản lý Doanh thu" },
-      { to: "/settings", label: "Cấu hình Hệ thống" },
+      {
+        title: "Tổng quan",
+        items: [
+          { to: "/", label: "Dashboard", icon: <LayoutDashboard size={18} />, exact: true },
+          { to: "/dashboard/conversion", label: "Tỷ lệ chuyển đổi", icon: <BarChart2 size={18} /> },
+          { to: "/dashboard/top-hotels", label: "Top khách sạn", icon: <Building2 size={18} /> },
+        ],
+      },
+      {
+        title: "Quản lý hệ thống",
+        items: [
+          { to: "/users", label: "Người dùng", icon: <Users size={18} /> },
+          { to: "/partners", label: "Đối tác", icon: <Briefcase size={18} /> },
+          { to: "/hotels", label: "Khách sạn", icon: <Hotel size={18} /> },
+          { to: "/bookings", label: "Đơn đặt chỗ", icon: <CalendarCheck2 size={18} /> },
+          { to: "/revenue", label: "Doanh thu", icon: <BarChart2 size={18} /> },
+          { to: "/reviews", label: "Đánh giá", icon: <Star size={18} /> },
+          { to: "/settings", label: "Cấu hình", icon: <Settings size={18} /> },
+        ],
+      },
     ],
+
     hotel_owner: [
-      { to: "/", label: "Dashboard", exact: true },
-      { to: "/hotels", label: "Quản lý Phòng" },
-      { to: "/bookings", label: "Quản lý Đơn đặt chỗ" },
+      {
+        title: "Chủ khách sạn",
+        items: [
+          { to: "/", label: "Dashboard", icon: <LayoutDashboard size={18} />, exact: true },
+          { to: "/rooms", label: "Phòng", icon: <Hotel size={18} /> },
+          { to: "/bookings", label: "Đơn đặt chỗ", icon: <CalendarCheck2 size={18} /> },
+        ],
+      },
     ],
+
     tour_provider: [
-      { to: "/", label: "Dashboard", exact: true },
-      { to: "/tours", label: "Quản lý Tour" },
-      { to: "/bookings", label: "Quản lý Đơn đặt chỗ" },
-      { to: "/revenue", label: "Quản lý Doanh thu" },
+      {
+        title: "Nhà cung cấp tour",
+        items: [
+          { to: "/", label: "Dashboard", icon: <LayoutDashboard size={18} />, exact: true },
+          { to: "/tours", label: "Tour", icon: <FileText size={18} /> },
+          { to: "/bookings", label: "Đơn đặt chỗ", icon: <CalendarCheck2 size={18} /> },
+          { to: "/revenue", label: "Doanh thu", icon: <BarChart2 size={18} /> },
+        ],
+      },
     ],
   };
 
-  const items = menuItems[role] || [];
+  const sections = menuItems[role] || [];
 
   return (
-      <div className="sidebar">
-        <h2>{role === "admin" ? "Admin" : "Dashboard"}</h2>
-        <ul>
-          {items.map((item) => (
-              <li key={item.to}>
-                <NavLink to={item.to} end={item.exact}>
-                  {item.label}
-                </NavLink>
-              </li>
+      <aside className="sidebar">
+        <div className="sidebar__logo">
+          🏨 MyAdmin
+        </div>
+        <div className="sidebar__menu">
+          {sections.map((section, idx) => (
+              <div key={idx} className="sidebar__section">
+                <p className="sidebar__title">{section.title}</p>
+                <ul>
+                  {section.items.map((item) => (
+                      <li key={item.to}>
+                        <NavLink
+                            to={item.to}
+                            end={item.exact}
+                            className={({ isActive }) => (isActive ? "active" : "")}
+                        >
+                          {item.icon}
+                          <span>{item.label}</span>
+                        </NavLink>
+                      </li>
+                  ))}
+                </ul>
+              </div>
           ))}
-        </ul>
-      </div>
+        </div>
+      </aside>
   );
 };
 
