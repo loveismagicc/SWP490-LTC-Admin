@@ -40,6 +40,7 @@ const Sidebar = () => {
           { to: "/bookings", label: "Đơn đặt chỗ", icon: <CalendarCheck2 size={18} /> },
           { to: "/revenue", label: "Doanh thu", icon: <BarChart2 size={18} /> },
           { to: "/reviews", label: "Đánh giá", icon: <Star size={18} /> },
+          { to: "/rooms", label: "Phòng", icon: <Hotel size={18} /> },
           { to: "/settings", label: "Cấu hình", icon: <Settings size={18} /> },
         ],
       },

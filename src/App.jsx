@@ -24,6 +24,8 @@ import Settings from "./pages/Settings/Settings";
 import { ToastContainer } from "react-toastify";
 import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner.jsx";
 import Unauthorized from "./components/UnauthorizedPage/Unauthorized.jsx";
+import Rooms from "./pages/Rooms/Rooms.jsx";
+import RoomDetailForm from "./pages/Rooms/Detail/RoomDetailForm.jsx";
 
 function App() {
     return (
@@ -104,6 +106,23 @@ function App() {
                                 </PrivateRoute>
                             }
                         />
+                        <Route
+                            path="rooms"
+                            element={
+                                <PrivateRoute allowedRoles={["admin"]}>
+                                    <Rooms />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/hotels/:hotelId/rooms/:roomId"
+                            element={
+                                <PrivateRoute allowedRoles={["admin"]}>
+                                    <RoomDetailForm />
+                                </PrivateRoute>
+                            }
+                        />
+
 
                         {/* Hotel owner */}
                         <Route

@@ -13,6 +13,7 @@ const pathNameMap = {
   edit: "Chỉnh sửa",
   create: "Tạo mới",
   dashboard: "Dashboard",
+  rooms: "Phòng",
 };
 
 const Breadcrumb = () => {

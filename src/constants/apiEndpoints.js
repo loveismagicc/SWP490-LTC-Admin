@@ -29,6 +29,16 @@ export const API_ENDPOINTS = {
         DELETE: (id) => `${API_BASE}/hotel/${id}`,
     },
 
+    ROOMS: {
+        LIST: `${API_BASE}/room`,
+        LIST_BY_HOTEL: (hotelId) => `${API_BASE}/hotel/${hotelId}/rooms`,
+        DETAIL: (id) => `${API_BASE}/room/${id}`,
+        CREATE: `${API_BASE}/room`,
+        UPDATE: (id) => `${API_BASE}/room/${id}`,
+        TOGGLE_VISIBILITY: (id) => `${API_BASE}/room/${id}/toggle-visibility`,
+        UPDATE_CANCELLATION_POLICY: (id) => `${API_BASE}/room/${id}/cancellation-policy`,
+    },
+
     TOURS: {
         LIST: `${API_BASE}/tours`,
         DETAIL: (id) => `${API_BASE}/tours/${id}`,

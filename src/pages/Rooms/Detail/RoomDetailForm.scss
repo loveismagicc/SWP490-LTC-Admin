@@ -1,0 +1,148 @@
+.room-form-page {
+  max-width: 1200px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 2rem 3rem;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    font-size: 2rem;
+    font-weight: 600;
+  }
+
+  .room-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      grid-column: span 1;
+
+      label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #34495e;
+      }
+
+      input,
+      select,
+      textarea {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border: 1px solid #dcdde1;
+        border-radius: 8px;
+        background-color: #fff;
+        transition: all 0.2s ease;
+
+        &:focus {
+          border-color: #3498db;
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+          outline: none;
+        }
+
+        &:disabled {
+          background-color: #eee;
+          cursor: not-allowed;
+        }
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .image-preview-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+
+        img {
+          width: 80px;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 6px;
+          border: 1px solid #ccc;
+        }
+      }
+    }
+
+    // Nối dài các nhóm đặc biệt (nếu cần span full row)
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+
+    .btn-actions {
+      grid-column: span 2;
+      justify-self: end;
+      display: flex;
+      gap: 1rem;
+
+      .btn-save {
+        padding: 0.9rem 1.5rem;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, #2980b9, #1c658c);
+        }
+      }
+
+      .btn-cancel {
+        padding: 0.9rem 1.5rem;
+        font-size: 1.1rem;
+        background: #ccc;
+        color: #2c3e50;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+
+        &:hover {
+          background: #b2bec3;
+        }
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .room-form-page {
+    padding: 1rem;
+  }
+
+  .room-form {
+    grid-template-columns: 1fr;
+
+    .form-group,
+    .form-group.full-width,
+    .btn-actions {
+      grid-column: span 1;
+    }
+
+    .btn-actions {
+      flex-direction: column;
+      align-items: stretch;
+
+      .btn-save,
+      .btn-cancel {
+        width: 100%;
+      }
+    }
+  }
+}
