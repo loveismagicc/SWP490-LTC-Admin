@@ -13,29 +13,31 @@ export const authService = {
             const res = await rawAxios.post(API_ENDPOINTS.AUTH.LOGIN, { email, password });
             const { accessToken, refreshToken, user } = res.data.data;
 
-
             localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
             localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
             localStorage.setItem(USER_KEY, JSON.stringify(user));
 
             return res.data.data;
         } catch (err) {
-            if (err.response) {
-                const status = err.response.status;
-                const message = err.response.data?.message || "Đã xảy ra lỗi";
+            handleAuthError(err);
+        }
+    },
 
-                if (status === 401) {
-                    throw new Error("Sai tên đăng nhập hoặc mật khẩu.");
-                } else if (status === 403) {
-                    throw new Error("Bạn không có quyền truy cập. Tài khoản có thể đã bị khóa.");
-                } else if (status === 400) {
-                    throw new Error("Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.");
-                } else {
-                    throw new Error(message);
-                }
-            } else {
-                throw new Error("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
-            }
+    sendForgotPasswordEmail: async (email) => {
+        try {
+            const res = await rawAxios.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
+            return res.data;
+        } catch (err) {
+            handleAuthError(err);
+        }
+    },
+
+    resetPassword: async (token, newPassword) => {
+        try {
+            const res = await rawAxios.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { token, password: newPassword });
+            return res.data;
+        } catch (err) {
+            handleAuthError(err);
         }
     },
 
@@ -97,4 +99,30 @@ export const authService = {
         const token = authService.getAccessToken();
         return !!token && !authService.isTokenExpired(token);
     },
+
+    logout: () => {
+        localStorage.removeItem(ACCESS_TOKEN_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+    },
 };
+
+// ✅ Hàm xử lý lỗi dùng chung
+function handleAuthError(err) {
+    if (err.response) {
+        const status = err.response.status;
+        const message = err.response.data?.message || "Đã xảy ra lỗi";
+
+        if (status === 401) {
+            throw new Error("Sai tên đăng nhập hoặc mật khẩu.");
+        } else if (status === 403) {
+            throw new Error("Bạn không có quyền truy cập.");
+        } else if (status === 400) {
+            throw new Error("Dữ liệu không hợp lệ.");
+        } else {
+            throw new Error(message);
+        }
+    } else {
+        throw new Error("Không thể kết nối đến máy chủ.");
+    }
+}

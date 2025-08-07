@@ -5,6 +5,8 @@ export const API_ENDPOINTS = {
         LOGIN: `${API_BASE}/login`,
         REFRESH_TOKEN: `${API_BASE}/login/refresh-token`,
         LOGOUT: `${API_BASE}/logout`,
+        FORGOT_PASSWORD: `${API_BASE}/login/forgot-password`,
+        RESET_PASSWORD: `${API_BASE}/login/reset-password`,
     },
 
     USERS: {

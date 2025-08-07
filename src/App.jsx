@@ -26,6 +26,8 @@ import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner.jsx";
 import Unauthorized from "./components/UnauthorizedPage/Unauthorized.jsx";
 import Rooms from "./pages/Rooms/Rooms.jsx";
 import RoomDetailForm from "./pages/Rooms/Detail/RoomDetailForm.jsx";
+import ForgotPassword from "./pages/Forgot/ForgotPassword.jsx";
+import ResetPassword from "./pages/Forgot/Reset/ResetPassword.jsx";
 
 function App() {
     return (
@@ -36,6 +38,8 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register-partner" element={<RegisterPartner />} />
                     <Route path="/unauthorized" element={<Unauthorized />} />
+                    <Route path="/forgot" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
 
                     {/* Protected routes */}
                     <Route
