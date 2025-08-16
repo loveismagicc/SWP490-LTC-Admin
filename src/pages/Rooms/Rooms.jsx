@@ -4,11 +4,14 @@ import PopupModal from "../../components/Popup/PopupModal";
 import { roomService } from "../../services/roomService";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { authService } from "../../services/authService"; // 👈 import authService
 import "./Rooms.scss";
 
 const Rooms = () => {
     const tableRef = useRef();
     const navigate = useNavigate();
+
+    const user = authService.getUser(); // 👈 lấy thông tin user (role, name,...)
 
     const [filters, setFilters] = useState({
         city: "",
@@ -69,7 +72,6 @@ const Rooms = () => {
     };
 
     const handleEditRoom = (row) => {
-        console.log(row);
         navigate(`/hotels/${row.hotelId}/rooms/${row._id}`);
     };
 
@@ -96,6 +98,10 @@ const Rooms = () => {
         }, 100);
     };
 
+    const handleAddRoom = () => {
+        navigate("/rooms/new");
+    };
+
     return (
         <div className="rooms-page">
             <div className="table-header">
@@ -117,6 +123,12 @@ const Rooms = () => {
                         onChange={handleFilterChange}
                     />
                 </div>
+
+                {user?.role === "hotel_owner" && (
+                    <button className="add-room-btn" onClick={handleAddRoom}>
+                        ➕ Thêm phòng
+                    </button>
+                )}
             </div>
 
             <DataTable

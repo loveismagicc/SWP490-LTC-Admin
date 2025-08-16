@@ -113,15 +113,23 @@ function App() {
                         <Route
                             path="rooms"
                             element={
-                                <PrivateRoute allowedRoles={["admin"]}>
+                                <PrivateRoute allowedRoles={["admin", "hotel_owner"]}>
                                     <Rooms />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="rooms/new"
+                            element={
+                                <PrivateRoute allowedRoles={["hotel_owner"]}>
+                                    <RoomDetailForm />
                                 </PrivateRoute>
                             }
                         />
                         <Route
                             path="/hotels/:hotelId/rooms/:roomId"
                             element={
-                                <PrivateRoute allowedRoles={["admin"]}>
+                                <PrivateRoute allowedRoles={["admin", "hotel_owner"]}>
                                     <RoomDetailForm />
                                 </PrivateRoute>
                             }
