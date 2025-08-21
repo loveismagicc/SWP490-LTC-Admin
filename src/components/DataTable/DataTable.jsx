@@ -7,6 +7,11 @@ import React, {
 } from "react";
 import "./DataTable.scss";
 
+// helper: đọc nested key (ví dụ "paymentInfo.bookingCode")
+const getNestedValue = (obj, path) => {
+    return path.split(".").reduce((acc, key) => (acc ? acc[key] : undefined), obj);
+};
+
 const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, ref) => {
     const [data, setData] = useState([]);
     const [search, setSearch] = useState("");
@@ -32,21 +37,8 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
     }, [currentPage, limit, search, JSON.stringify(filters), fetchData]);
 
     useEffect(() => {
-        const fetch = async () => {
-            setLoading(true);
-            try {
-                const res = await fetchData(currentPage, limit, search, filters);
-                setData(res.data);
-                setTotalPages(Math.ceil(res.total / limit));
-            } catch (error) {
-                console.error("Lỗi khi load data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetch();
-    }, [currentPage, limit, search, filters]);
+        loadData();
+    }, [loadData]);
 
     useImperativeHandle(ref, () => ({
         reload: () => loadData(),
@@ -71,8 +63,8 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
 
     const sortedData = sortKey
         ? [...data].sort((a, b) => {
-            const valA = a[sortKey];
-            const valB = b[sortKey];
+            const valA = getNestedValue(a, sortKey);
+            const valB = getNestedValue(b, sortKey);
             if (valA < valB) return sortOrder === "asc" ? -1 : 1;
             if (valA > valB) return sortOrder === "asc" ? 1 : -1;
             return 0;
@@ -181,13 +173,16 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
                                     key={`row-${row._id || row.id || idx}`}
                                     onClick={() => onRowClick?.(row)}
                                 >
-                                    {columns.map((col) => (
-                                        <td key={`cell-${idx}-${col.key}`}>
-                                            {col.render
-                                                ? col.render(row[col.key], row)
-                                                : row[col.key]}
-                                        </td>
-                                    ))}
+                                    {columns.map((col) => {
+                                        const cellValue = getNestedValue(row, col.key);
+                                        return (
+                                            <td key={`cell-${idx}-${col.key}`}>
+                                                {col.render
+                                                    ? col.render(cellValue, row)
+                                                    : cellValue}
+                                            </td>
+                                        );
+                                    })}
                                     {rowActions?.length > 0 && (
                                         <td>
                                             {rowActions.map((act, i) => (

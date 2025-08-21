@@ -50,11 +50,13 @@ export const API_ENDPOINTS = {
     },
 
     BOOKINGS: {
-        LIST: `${API_BASE}/bookings`,
-        DETAIL: (id) => `${API_BASE}/bookings/${id}`,
-        CREATE: `${API_BASE}/bookings`,
-        UPDATE: (id) => `${API_BASE}/bookings/${id}`,
-        DELETE: (id) => `${API_BASE}/bookings/${id}`,
+        LIST: `${API_BASE}/booking`,
+        DETAIL: (id) => `${API_BASE}/booking/${id}`,
+        BY_USER: (id) => `${API_BASE}/booking/user/${id}`,
+        BY_HOTEL: (id) => `${API_BASE}/booking/hotel/${id}`,
+        CREATE: `${API_BASE}/booking`,
+        UPDATE: (id) => `${API_BASE}/booking/${id}`,
+        DELETE: (id) => `${API_BASE}/booking/${id}`,
     },
 
     REVENUE: {
