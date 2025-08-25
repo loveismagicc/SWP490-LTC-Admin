@@ -28,6 +28,7 @@ import Rooms from "./pages/Rooms/Rooms.jsx";
 import RoomDetailForm from "./pages/Rooms/Detail/RoomDetailForm.jsx";
 import ForgotPassword from "./pages/Forgot/ForgotPassword.jsx";
 import ResetPassword from "./pages/Forgot/Reset/ResetPassword.jsx";
+import Reviews from "./pages/Reviews/Reviews.jsx";
 
 function App() {
     return (
@@ -131,6 +132,22 @@ function App() {
                             element={
                                 <PrivateRoute allowedRoles={["admin", "hotel_owner"]}>
                                     <RoomDetailForm />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/revenue"
+                            element={
+                                <PrivateRoute allowedRoles={["admin", "hotel_owner"]}>
+                                    <Revenue />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/reviews"
+                            element={
+                                <PrivateRoute allowedRoles={["admin", "hotel_owner"]}>
+                                    <Reviews />
                                 </PrivateRoute>
                             }
                         />
