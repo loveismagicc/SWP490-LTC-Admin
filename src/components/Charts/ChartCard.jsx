@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import "./ChartCard.scss";
 
-const ChartCard = ({ title, fetchChartData, dataKey = "users", color = "#82ca9d" }) => {
+const ChartCard = ({ title, fetchChartData, dataKey = "totalRevenue", color = "#82ca9d" }) => {
     const [filter, setFilter] = useState("month");
     const [chartData, setChartData] = useState([]);
 
@@ -20,12 +20,13 @@ const ChartCard = ({ title, fetchChartData, dataKey = "users", color = "#82ca9d"
             try {
                 const data = await fetchChartData(filter);
                 setChartData(data);
+				console.log("data", data);
             } catch (err) {
                 console.error("Lỗi khi tải dữ liệu biểu đồ:", err);
             }
         };
         loadData();
-    }, [filter, fetchChartData]);
+    }, [filter]);
 
     // ✅ Xác định key theo filter nếu dataKey là object
     const resolvedKey = typeof dataKey === "object" ? dataKey[filter] : dataKey;
@@ -44,7 +45,7 @@ const ChartCard = ({ title, fetchChartData, dataKey = "users", color = "#82ca9d"
             <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="_id" />
                     <YAxis />
                     <Tooltip />
                     <Legend />

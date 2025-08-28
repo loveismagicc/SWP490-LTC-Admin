@@ -38,11 +38,17 @@ const Rooms = () => {
     };
 
     const columns = [
-        { key: "name", label: "Tên phòng" },
+        { key: "roomType", label: "Tên phòng" },
         { key: "hotelName", label: "Khách sạn" },
-        { key: "quantity", label: "Số lượng" },
+        { key: "maxPeople", label: "Số lượng khách tối đa" },
         { key: "price", label: "Giá (VNĐ)" },
-        { key: "amenities", label: "Tiện nghi", render: (val) => val?.join(", ") },
+        { key: "amenities", label: "Tiện nghi", render: (val) => {
+			return <ul>
+				{val && val.length > 0 ? val.map((item, index) => (
+					<li key={index}>{item}</li>
+				)) : <li>Không có tiện nghi</li>}
+			</ul>
+		} },
         { key: "status", label: "Trạng thái", render: (val) => (val === "active" ? "Hiển thị" : "Đã ẩn") },
     ];
 

@@ -10,6 +10,7 @@ import {
   Star,
   Building2,
   FileText,
+  Building,
 } from "lucide-react";
 
 import "./Sidebar.scss";
@@ -27,8 +28,8 @@ const Sidebar = () => {
         title: "Tổng quan",
         items: [
           { to: "/", label: "Dashboard", icon: <LayoutDashboard size={18} />, exact: true },
-          { to: "/dashboard/conversion", label: "Tỷ lệ chuyển đổi", icon: <BarChart2 size={18} /> },
-          { to: "/dashboard/top-hotels", label: "Top khách sạn", icon: <Building2 size={18} /> },
+        //   { to: "/dashboard/conversion", label: "Tỷ lệ chuyển đổi", icon: <BarChart2 size={18} /> },
+        //   { to: "/dashboard/top-hotels", label: "Top khách sạn", icon: <Building size={18} /> },
         ],
       },
       {
@@ -37,11 +38,12 @@ const Sidebar = () => {
           { to: "/users", label: "Người dùng", icon: <Users size={18} /> },
           { to: "/partners", label: "Đối tác", icon: <Briefcase size={18} /> },
           { to: "/hotels", label: "Khách sạn", icon: <Hotel size={18} /> },
-          { to: "/bookings", label: "Đơn đặt chỗ", icon: <CalendarCheck2 size={18} /> },
+          
+          { to: "/rooms", label: "Phòng", icon: <Hotel size={18} /> },
+		  { to: "/bookings", label: "Đơn đặt chỗ", icon: <CalendarCheck2 size={18} /> },
           { to: "/revenue", label: "Doanh thu", icon: <BarChart2 size={18} /> },
           { to: "/reviews", label: "Đánh giá", icon: <Star size={18} /> },
-          { to: "/rooms", label: "Phòng", icon: <Hotel size={18} /> },
-          { to: "/settings", label: "Cấu hình", icon: <Settings size={18} /> },
+        //   { to: "/settings", label: "Cấu hình", icon: <Settings size={18} /> },
         ],
       },
     ],

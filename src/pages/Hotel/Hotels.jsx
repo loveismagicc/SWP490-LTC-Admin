@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import DataTable from "../../components/DataTable/DataTable";
 import { hotelService } from "../../services/hotelService";
 import { toast } from "react-toastify";
@@ -6,10 +6,45 @@ import "./Hotels.scss";
 import PopupModal from "../../components/Popup/PopupModal.jsx";
 import { useNavigate } from "react-router-dom";
 import { hotelStatusMap } from "../../utils/enum/hotelStatusMap"; // tạo map giống partnerStatusMap
+import { partnerService } from "../../services/partnerService.js";
+import { FormSelect } from "react-bootstrap";
 
+const componentsSearch = ({ filters, handleFilterChange, owners }) => {
+	return (
+		<div className="d-flex gap-4">
+			<div className="form-group w-25">
+				<input
+					type="text"
+					name="address"
+					placeholder="Địa chỉ"
+					value={filters.address}
+					onChange={handleFilterChange}
+					className=" form-control form-control-lg"
+				/>
+			</div>
+			<div className="form-group w-25">
+				<FormSelect
+					name="ownerId"
+					value={filters.ownerId}
+					onChange={handleFilterChange}
+					className="form-control form-control-lg"
+				>
+					<option value="">Tất cả </option>
+					{owners.map((o) => (
+						<option key={o._id} value={o._id}>
+							{o.companyName}
+						</option>
+					))}
+				</FormSelect>
+			</div>
+		</div>
+	);
+};
 const Hotels = () => {
     const tableRef = useRef();
     const navigate = useNavigate();
+
+	const [owners, setOwners] = useState([]);
 
     const columns = [
         { key: "name", label: "Tên khách sạn" },
@@ -29,6 +64,14 @@ const Hotels = () => {
         message: "",
         onConfirm: () => {},
     });
+	const [filters, setFilters] = useState({
+		ownerId: "",
+		address: "",
+	});
+
+	useEffect(() => {
+		fetchDataOwner();
+	}, [])
 
     const openConfirm = (title, message, callback) => {
         setPopupConfig({
@@ -42,23 +85,29 @@ const Hotels = () => {
         setShowModal(true);
     };
 
-    const fetchData = async (page, limit, search, filters = {}) => {
+    const fetchData = async (page, limit, search, filterStatus = {}) => {
         const resolvedFilters = {};
-        for (const key in filters) {
+        for (const key in filterStatus) {
             if (key === "status") {
                 resolvedFilters[key] = Object.keys(hotelStatusMap).filter(
-                    (k) => filters[key].includes(hotelStatusMap[k])
+                    (k) => filterStatus[key].includes(hotelStatusMap[k])
                 );
             } else {
-                resolvedFilters[key] = filters[key];
+                resolvedFilters[key] = filterStatus[key];
             }
         }
-
-        const res = await hotelService.getHotels(page, limit, search, resolvedFilters);
+		console.log(filters);
+        const res = await hotelService.getHotels(page, limit, search, {...resolvedFilters, ...filters});
         return {
             data: res.data,
             total: res.total,
         };
+    };
+
+	const fetchDataOwner = async () => {
+        const res = await partnerService.getPartners(1, 1000, "");
+		console.log(res?.data);
+		setOwners(res?.data || []);
     };
 
     const handleApprove = async (row) => {
@@ -98,6 +147,7 @@ const Hotels = () => {
     };
 
     const handleRowClick = (row) => {
+		console.log(row);
         navigate(`/hotels/${row._id}`);
     };
 
@@ -128,6 +178,16 @@ const Hotels = () => {
 
         return actions;
     };
+	const handleFilterChange = (e) => {
+		setFilters((prev) => ({
+			...prev,
+			[e.target.name]: e.target.value,
+		}));
+		console.log("e.target.value--------> ", e.target.value);
+		setTimeout(() => {
+			tableRef.current?.reload();
+		}, 300);
+	};
 
     return (
         <div>
@@ -144,6 +204,7 @@ const Hotels = () => {
                 fetchData={fetchData}
                 actions={getActions}
                 onRowClick={handleRowClick}
+				componentsSearch={componentsSearch({ filters, handleFilterChange, owners })}
             />
 
             {showModal && (

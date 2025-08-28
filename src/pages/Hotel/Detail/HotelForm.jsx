@@ -44,7 +44,10 @@ const HotelForm = () => {
         if (isEdit) {
             hotelService
                 .getHotelById(id)
-                .then((data) => setForm(data))
+                .then((data) => {
+					console.log(data);
+					setForm(data)
+				})
                 .catch(() => {
                     toast.error("Không tìm thấy khách sạn");
                     navigate("/hotels");
@@ -61,7 +64,9 @@ const HotelForm = () => {
         e.preventDefault();
         try {
             if (isEdit) {
-                await hotelService.updateHotel(id, form);
+				let data = {...form};
+				if(data?._id) delete data._id;
+                await hotelService.updateHotel(id, data);
                 toast.success("Cập nhật khách sạn thành công");
             } else {
                 await hotelService.createHotel(form);

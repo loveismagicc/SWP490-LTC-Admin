@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { roomService } from "../../../services/roomService";
-import { hotelService } from "../../../services/hotelService";
-import { authService } from "../../../services/authService"; // ✅ dùng authService
+import { roomService } from "../../services/roomService";
+import { hotelService } from "../../services/hotelService";
+import { authService } from "../../services/authService"; // ✅ dùng authService
 import "./RoomDetailForm.scss";
 
-const RoomDetailForm = () => {
+const BookingDetail = () => {
     const { roomId } = useParams();
     const navigate = useNavigate();
 
@@ -269,4 +269,4 @@ const RoomDetailForm = () => {
     );
 };
 
-export default RoomDetailForm;
+export default BookingDetail;
