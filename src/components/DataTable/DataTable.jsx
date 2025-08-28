@@ -41,7 +41,15 @@ const DataTable = forwardRef(({ columns, fetchData, actions = [], onRowClick }, 
     }, [loadData]);
 
     useImperativeHandle(ref, () => ({
-        reload: () => loadData(),
+        reload: (externalFilters = {}) => {
+            // Nếu có filter từ ngoài, merge với filter hiện tại
+            if (externalFilters && Object.keys(externalFilters).length > 0) {
+                setFilters((prev) => ({ ...prev, ...externalFilters }));
+                setCurrentPage(1); // reset page khi filter thay đổi
+            } else {
+                loadData();
+            }
+        },
         reset: () => {
             setSearch("");
             setCurrentPage(1);

@@ -59,6 +59,13 @@ export const API_ENDPOINTS = {
         DELETE: (id) => `${API_BASE}/booking/${id}`,
     },
 
+    REVENUES: {
+        LIST: `${API_BASE}/revenue`, // Lấy danh sách doanh thu (GET)
+        DETAIL: (id) => `${API_BASE}/revenue/${id}`, // Lấy chi tiết 1 bản ghi doanh thu (GET)
+        REFUND: (id) => `${API_BASE}/revenue/${id}/refund`, // Hoàn tiền (POST)
+        EXPORT: `${API_BASE}/revenue/export-excel`, // Xuất báo cáo (GET, nếu có)
+    },
+
     REVENUE: {
         BY_MONTH: `${API_BASE}/revenue/month`,
         BY_QUARTER: `${API_BASE}/revenue/quarter`,

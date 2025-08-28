@@ -1,12 +1,8 @@
 import React, { useRef, useState } from "react";
 import DataTable from "../../components/DataTable/DataTable";
 import { revenueService } from "../../services/revenueService.js";
-import { toast } from "react-toastify";
 import "./Revenue.scss";
-import PopupModal from "../../components/Popup/PopupModal.jsx";
-import { useNavigate } from "react-router-dom";
 
-// map trạng thái thanh toán (có thể chỉnh theo hệ thống của bạn)
 const revenueStatusMap = {
     paid: "Đã thanh toán",
     pending: "Chờ thanh toán",
@@ -15,33 +11,20 @@ const revenueStatusMap = {
 
 const Revenue = () => {
     const tableRef = useRef();
-    const navigate = useNavigate();
-
-    const [showModal, setShowModal] = useState(false);
-    const [popupConfig, setPopupConfig] = useState({
-        title: "",
-        message: "",
-        onConfirm: () => {},
+    const [dateRange, setDateRange] = useState({
+        start: new Date().toISOString().slice(0, 10),
+        end: new Date().toISOString().slice(0, 10),
     });
 
-    const openConfirm = (title, message, callback) => {
-        setPopupConfig({
-            title,
-            message,
-            onConfirm: () => {
-                callback();
-                setShowModal(false);
-            },
-        });
-        setShowModal(true);
-    };
-
-    // Cấu hình cột bảng
     const columns = [
         { key: "bookingCode", label: "Mã booking" },
         { key: "partnerName", label: "Đối tác" },
         { key: "hotelName", label: "Khách sạn" },
-        { key: "amount", label: "Số tiền (VND)", render: (val) => val?.toLocaleString() },
+        {
+            key: "amount",
+            label: "Số tiền (VND)",
+            render: (val) => val?.toLocaleString(),
+        },
         { key: "date", label: "Ngày thanh toán" },
         {
             key: "status",
@@ -52,17 +35,19 @@ const Revenue = () => {
         },
     ];
 
-    // Gọi API lấy dữ liệu
     const fetchData = async (page, limit, search, filters = {}) => {
         const resolvedFilters = {};
-        for (const key in filters) {
-            if (key === "status") {
-                resolvedFilters[key] = Object.keys(revenueStatusMap).filter(
-                    (k) => filters[key].includes(revenueStatusMap[k])
-                );
-            } else {
-                resolvedFilters[key] = filters[key];
-            }
+
+        if (filters.status) {
+            resolvedFilters.status = Object.keys(revenueStatusMap).filter((k) =>
+                filters.status.includes(revenueStatusMap[k])
+            );
+        }
+
+        // luôn gửi start/end date hiện tại
+        if (dateRange.start && dateRange.end) {
+            resolvedFilters.startDate = dateRange.start;
+            resolvedFilters.endDate = dateRange.end;
         }
 
         const res = await revenueService.getRevenues(page, limit, search, resolvedFilters);
@@ -72,60 +57,71 @@ const Revenue = () => {
         };
     };
 
-    // Hành động: hoàn tiền
-    const handleRefund = async (row) => {
-        openConfirm("Hoàn tiền", "Bạn có chắc muốn hoàn tiền giao dịch này?", async () => {
-            try {
-                await revenueService.refundRevenue(row._id);
-                toast.success("💸 Đã hoàn tiền");
-                tableRef.current?.reload();
-            } catch {
-                toast.error("❌ Lỗi khi hoàn tiền");
+    const handleDateChange = (key, value) => {
+        setDateRange((prev) => {
+            const newRange = { ...prev, [key]: value };
+            // reload khi cả 2 giá trị đều có
+            if (newRange.start && newRange.end) {
+                tableRef.current?.reload({
+                    startDate: newRange.start,
+                    endDate: newRange.end,
+                });
             }
+            return newRange;
         });
     };
 
-    const handleRowClick = (row) => {
-        navigate(`/revenues/${row._id}`); // xem chi tiết doanh thu
-    };
-
-    const getActions = (row) => {
-        const actions = [];
-
-        if (row.status === "paid") {
-            actions.push({
-                label: "Hoàn tiền",
-                icon: "💸",
-                action: handleRefund,
-                className: "btn-refund",
+    const handleExportExcel = async () => {
+        try {
+            const res = await revenueService.exportReport({
+                startDate: dateRange.start,
+                endDate: dateRange.end,
             });
-        }
 
-        return actions;
+            // Tạo blob và tải file về
+            const blob = new Blob([res.data], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "doanh-thu.xlsx");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Export Excel error", error);
+        }
     };
+
 
     return (
         <div>
             <div className="table-header">
                 <h2>Quản lý Doanh thu</h2>
+                <div className="header-actions">
+                    <label>Từ ngày: </label>
+                    <input
+                        type="date"
+                        value={dateRange.start}
+                        onChange={(e) => handleDateChange("start", e.target.value)}
+                    />
+                    <label>Đến ngày: </label>
+                    <input
+                        type="date"
+                        value={dateRange.end}
+                        onChange={(e) => handleDateChange("end", e.target.value)}
+                    />
+                    <button onClick={handleExportExcel}>Xuất Excel</button>
+                </div>
             </div>
 
             <DataTable
                 ref={tableRef}
                 columns={columns}
                 fetchData={fetchData}
-                actions={getActions}
-                onRowClick={handleRowClick}
             />
-
-            {showModal && (
-                <PopupModal
-                    title={popupConfig.title}
-                    message={popupConfig.message}
-                    onClose={() => setShowModal(false)}
-                    onConfirm={popupConfig.onConfirm}
-                />
-            )}
         </div>
     );
 };
